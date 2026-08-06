@@ -57,13 +57,19 @@ The live Jira MCP pull for item 4 incidentally answered the base version of this
 
 **Still pending**: bug enrichment for the other 21 features; a designed pipeline step that actually consumes `linked_bug_issues` to propose edge cases (currently just data sitting in the JSON, not wired into Test Case Generator). Standout bug examples worth generating test cases from: `NIV-6819` (alert timestamp shows UST while phone shows IST — a real timezone bug), `NIV-9610` (EV/PV cross-variant alert suppression), `NIV-6850` (duplicate/continuous alert firing — a debounce failure).
 
-## 6. Test bench capability list — ⬜ PENDING
+## 6. Test bench capability list — 🟡 STARTED (2026-08-06)
 
-What can the physical LabCar/Vehicle/Bench rigs actually simulate/inject? No point generating a test case for a fault condition the lab can't produce.
+- **Built artifact**: `Docs/test_bench_capabilities.md`.
+- **Confirmed**: 4 environments, not 3 — `HIL` is real and relevant alongside `LabCar`/`Vehicle`/`Bench` (matches a Jira `Environment` field value never actually used in this feature's history until now). At least one rig supports direct CAN signal injection (not just physical triggering) — makes fault/boundary-condition test cases realistically executable.
+- **Action needed**: add `HIL` to `Schema/test_case_schema.json`'s `environment` enum once the capability detail below is filled in.
+- **Still needed — genuine domain-expert territory, not more agent work**: which specific environment(s) support CAN injection; the full per-environment capability matrix (what each can/can't simulate — network degradation, multi-module race conditions, etc.).
 
-## 7. Compliance/safety mapping — ⬜ PENDING
+## 7. Compliance/safety mapping — 🟡 CHECKED, BOTH OPEN (2026-08-06)
 
-UNECE R155/ASIL classification for Intrusion Alert, if one exists, so test case severity/priority can reflect it.
+- **Built artifact**: `Docs/compliance_mapping.md`.
+- **Confirmed absent, not just unfound**: checked the DFMEA (no mention of "Intrusion" anywhere — it's generic TCU hardware analysis, not feature-specific) and all 5 requirement PDFs (523 pages, searched for ASIL/UNECE/R155/R156/ISO 26262/functional safety — zero matches).
+- **Both ASIL (ISO 26262) and UNECE R155 status**: unknown, needs the safety/compliance team — not something either agent investigation or more document search can resolve.
+- **Interim**: severity signal for now comes from `Test Set Category` + real Jira bug `severity` data (item 5), not a formal safety/compliance rating.
 
 ## 8. A golden eval set — 🟡 STARTED (2026-08-06)
 
