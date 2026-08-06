@@ -98,6 +98,8 @@ Confirmed two ways, not assumed: (1) a direct attempt to read it via the generic
 
 **Scope decision (2026-08-06)**: informational only for now — this data does not gate Coverage Checker or Reviewer logic, given the source is brand new and unverified against a real run. Revisit once `xray_execution_status_sync.py` has actually been run and the output's been sanity-checked.
 
+**Deferred (2026-08-06)**: blocked on Xray admin access — the logged-in account (confirmed intentional, not a mistake) hit "You do not have access to Jira settings or Atlassian admin, contact your Jira admin to grant you access" when trying to reach Xray's Global Settings → API Keys page, which is where a Client ID/Secret gets generated. Team decision: don't pursue this further right now. `xray_execution_status_sync.py` stays built and ready — running it is just an admin-access problem to solve later, not a code problem. No further agent action needed on this until access is resolved.
+
 ## Scope decision
 
 **Going forward only** — matches the item 2 schema decision. New/AI-generated test cases are checked against `requirement_traceability.json`; the 2,704 historical rows are not retroactively backfilled with Jira links as part of this pipeline (a separate, much larger project if the team wants it later).
