@@ -25,6 +25,7 @@ Real `.dbc` file + Master Signal Catalog, not PDF-parsed tables.
 - **Built artifact**: `Docs/definition_of_done.md` — two-tier rubric (Tier 1 hard gates, auto-checkable; Tier 2 quality checks, route to human on failure) plus a human-sign-off policy and status lifecycle (DRAFT → RELEASED / NEEDS_REVIEW / REJECTED).
 - **Key decisions**: dedup via exact-field match now, embeddings noted as a future upgrade; Tier 2 failures route to human review rather than auto-reject; mandatory human sign-off for Edge Case categories + low-confidence tags only (Happy Path/Negative Case can auto-release); `SIGNAL NOT FOUND` hard-blocks release, no visible-flag exception.
 - **Validated against the 3 existing test cases** — see the worked example table in `definition_of_done.md`. In the process, caught and corrected a false "fabricated signal" call on `Test_91` (the signal was real; the derived index was just incomplete) — this produced the two-source signal-verification rule now in Tier 1 gate #2 and a new entry in `guardrails.md` #2.
+- **Refined 2026-08-06 (direct team feedback)**: dedup gate #6 was blanket — any resemblance to existing coverage blocked release. Corrected to be category-scoped: `Happy Path`/`Negative Case` matches are expected regression coverage and never block; only `Edge Case - *`/`User-Journey` matches block. See `guardrails.md` #6.
 
 ## 4. Requirement traceability data — 🟡 LIVE DATA PULLED FOR NIO-F001, GRANULARITY GAP FOUND (2026-08-06)
 

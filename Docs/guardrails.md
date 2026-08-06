@@ -30,9 +30,11 @@ Interaction Mapper and edge-case generation should mark output as "directly deri
 
 Validate against `Schema/test_case_schema.json` with `jsonschema` before writing a row, not after. Reject anything that doesn't match the allowed enums (`Environment`, `Test Set Category`, etc.) rather than catching it downstream.
 
-## 6. Dedup enforced by a tool with a real similarity threshold
+## 6. Dedup enforced by a tool with a real similarity threshold — but only blocking where duplication is actually a problem
 
-Never trust the model's self-report of "I checked, no duplicates." Diff against `Existing_TestCases/` (2,704 rows) and against other cases in the same batch, programmatically. Current method: exact-field match (`parent_id` + `requirement_id` + `test_set_category` + primary trigger signal) — see `definition_of_done.md` Tier 1 gate #6 for the exact rule and its known limitation (won't catch paraphrased duplicates; embedding similarity is the documented future upgrade).
+Never trust the model's self-report of "I checked, no duplicates." Diff against `Existing_TestCases/` (2,704 rows), Jira (`Traceability/requirement_traceability.json`), and other cases in the same batch, programmatically. Current method: exact-field match (`parent_id` + `requirement_id` + `test_set_category` + primary trigger signal) — see `definition_of_done.md` Tier 1 gate #6 for the exact rule and its known limitation (won't catch paraphrased duplicates; embedding similarity is the documented future upgrade).
+
+**Added 2026-08-06, from direct team feedback:** dedup is not a blanket "avoid all resemblance" rule. A generated `Happy Path` or `Negative Case` test case that resembles existing coverage is doing its job — those are core-requirement regression tests, meant to be re-verified every build, not one-off novel content. Blocking them on a dedup match would suppress legitimate, necessary regression coverage. Only `Edge Case - *` and `User-Journey` categories are blocked on a dedup match; the other two are logged for visibility but always allowed through. Don't "fix" this by making dedup stricter across the board — that was tried conceptually and explicitly rejected.
 
 ## 7. Executability guardrail
 
