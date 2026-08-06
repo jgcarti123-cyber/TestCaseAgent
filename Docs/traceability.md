@@ -100,6 +100,14 @@ Confirmed two ways, not assumed: (1) a direct attempt to read it via the generic
 
 **Deferred (2026-08-06)**: blocked on Xray admin access — the logged-in account (confirmed intentional, not a mistake) hit "You do not have access to Jira settings or Atlassian admin, contact your Jira admin to grant you access" when trying to reach Xray's Global Settings → API Keys page, which is where a Client ID/Secret gets generated. Team decision: don't pursue this further right now. `xray_execution_status_sync.py` stays built and ready — running it is just an admin-access problem to solve later, not a code problem. No further agent action needed on this until access is resolved.
 
+## Expansion to 18 more features (2026-08-06)
+
+Went from 2 features (Intrusion Alert, Time Fencing Alert — both with full per-test detail and requirement-line extraction) to 20, by mapping 18 more local `Existing_TestCases/` files to their Jira Feature issue by name and pulling **feature-level only** data (Test count + feature-level bug count via count-mode JQL) — not the same depth as the first two, since 18 features turned out to hold 272 Test issues collectively, and going per-test for all of them wasn't a reasonable scope for one pass.
+
+**Key scheme note**: these 18 have no confirmed local `NIO-FXXX` ID (unlike `NIO-F001`/`NIO-F003`, which came from `Requirement_Docs/`), so `features.*` for these is keyed by the `Existing_TestCases/` filename instead — don't confuse this with a real requirement-doc-derived feature ID.
+
+**Not guessed, left out**: `Auto Ecall` / `E-Call Manual` (Jira has two similarly-worded features under one parent — `NIF-215` "ECall (Manual)", `NIF-216` "Manual(Hard button press)/Auto eCall" — genuinely ambiguous which maps to which local file) and `RESS` / `B-Call SoftSwitch` (no matching Jira Feature found anywhere in the NIF project by keyword search). All four need a team member's confirmation of actual Jira terminology, not more searching.
+
 ## Scope decision
 
 **Going forward only** — matches the item 2 schema decision. New/AI-generated test cases are checked against `requirement_traceability.json`; the 2,704 historical rows are not retroactively backfilled with Jira links as part of this pipeline (a separate, much larger project if the team wants it later).
