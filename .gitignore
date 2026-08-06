@@ -6,6 +6,7 @@
 /Requirement_Docs/
 /Existing_TestCases/
 /Generated_TestCases/
+/Traceability/
 
 # macOS / Excel artifacts
 .DS_Store

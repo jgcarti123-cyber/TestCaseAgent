@@ -26,9 +26,13 @@ Real `.dbc` file + Master Signal Catalog, not PDF-parsed tables.
 - **Key decisions**: dedup via exact-field match now, embeddings noted as a future upgrade; Tier 2 failures route to human review rather than auto-reject; mandatory human sign-off for Edge Case categories + low-confidence tags only (Happy Path/Negative Case can auto-release); `SIGNAL NOT FOUND` hard-blocks release, no visible-flag exception.
 - **Validated against the 3 existing test cases** — see the worked example table in `definition_of_done.md`. In the process, caught and corrected a false "fabricated signal" call on `Test_91` (the signal was real; the derived index was just incomplete) — this produced the two-source signal-verification rule now in Tier 1 gate #2 and a new entry in `guardrails.md` #2.
 
-## 4. Requirement traceability data — ⬜ PENDING
+## 4. Requirement traceability data — 🟡 TOOLING BUILT, NOT YET CLOSED (2026-08-06)
 
-Where does official coverage/traceability data live (Polarion / DOORS / Jira / an RTM spreadsheet)? The Coverage Checker stage currently only has the 2,704 rows in `Existing_TestCases/` as its "already covered" reference — needs to know if that's the full picture or a subset.
+- **Finding**: all 2,704 rows across all 22 existing feature files have an empty Requirement ID column — zero local traceability data exists, not a subset. Confirmed by direct count, not assumed.
+- **Source of truth**: Jira (team-confirmed), API access achievable. **No Jira MCP connector is set up in this environment yet** — nothing was queried live.
+- **Built artifacts**: `Scripts/jira_traceability_sync.py` (CSV-export path tested against a synthetic sample; live-API path written against the documented Jira REST API v3 shape but not run against a real instance), `Docs/traceability.md` (full design, what to gather from the Jira admin, output schema).
+- **Still needed to actually close this out**: a real Jira CSV export (or live API access) to run the sync against; confirmation of whether test cases are tracked via plain Jira issues or a plugin (Xray/Zephyr) — the current API path doesn't handle plugin-specific fields yet.
+- **Scope**: going forward only, matches the item 2 decision — historical 2,704 rows are not being retroactively backfilled with Jira links as part of this pipeline.
 
 ## 5. Field/bug history feed — ⬜ PENDING
 

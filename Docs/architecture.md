@@ -7,7 +7,7 @@
 3. **Signal Resolution** — resolves every signal name mentioned anywhere into its full definition. **This is a deterministic tool call, never LLM free-generation.** Two-source lookup order: `Signal_Catalogs/unified_signal_index.json` first, then the raw `.dbc` file directly if not found there (the index only covers 70.8% of DBC signals — see `guardrails.md` #2). Only flagged `SIGNAL NOT FOUND` if absent from both.
 4. **Module Interaction Mapper** — scans sibling feature docs and the DFMEA to find where CAN frames, ECUs, or state machines overlap with the target feature. This is what surfaces edge cases nobody explicitly wrote down (see Test_89 as the worked example).
 5. **Test Case Generator** — produces cases across the fixed taxonomy in `Schema/test_case_schema.json`'s `test_set_category` enum: Happy Path, Negative Case, Edge Case (Cross-Module / Signal-Fault-Boundary / DFMEA-Derived), User-Journey.
-6. **Coverage & Dedupe Checker** — diffs new cases against the existing corpus (`Existing_TestCases/`, 2,704 rows across 22 features) to avoid duplicates. Enforced by a similarity-threshold tool, not by asking the LLM "did you check?"
+6. **Coverage & Dedupe Checker** — diffs new cases against two sources: the existing corpus (`Existing_TestCases/`, 2,704 rows across 22 features) and `Traceability/requirement_traceability.json` (Jira-sourced, see `traceability.md` — needed because `Existing_TestCases/` has zero requirement-ID links of its own, so it can't answer "is this requirement already covered?" alone). A requirement absent from both is a genuine gap. Enforced by a similarity-threshold tool, not by asking the LLM "did you check?"
 7. **Formatter** — writes output conforming to `Schema/test_case_schema.json`. Validate with `jsonschema` before writing to the `.xlsx`.
 8. **Reviewer (QA-of-QA)** — applies `Docs/definition_of_done.md`: Tier 1 hard gates (schema, signal verification, traceability, dedup) auto-reject; Tier 2 quality checks (category-logic match, no orphan signal claims, step specificity, confidence-tag accuracy) route to human review rather than auto-reject. Not the final gate for Edge Case categories or low-confidence cases — those need mandatory human sign-off regardless of automated pass/fail. See `guardrails.md` and `definition_of_done.md`.
 
@@ -24,12 +24,14 @@ Not every stage deserves the same reasoning budget:
 ```
 Test Case/
 ├── CLAUDE.md                    ← start here every session
-├── Docs/                        ← this file + requirements/tools/harness/guardrails
+├── Docs/                        ← this file + requirements/tools/harness/guardrails/definition_of_done/traceability
 ├── Schema/                      ← test_case_schema.json (formal, validated)
+├── Scripts/                     ← jira_traceability_sync.py and future pipeline tooling
 ├── Signal_Catalogs/             ← DBC + Master Catalog + derived indexes (ground truth)
 ├── Requirement_Docs/            ← NF-FFW PDFs + DFMEA (stage 1/2/4 input)
 ├── Existing_TestCases/          ← 22 features, 2,704 rows (stage 6 reference; formerly "Draft")
-└── Generated_TestCases/         ← pipeline output
+├── Generated_TestCases/         ← pipeline output
+└── Traceability/                ← requirement_traceability.json (Jira-sourced, gitignored, stage 6 input)
 ```
 
 ## Batching, not per-test-case calls
