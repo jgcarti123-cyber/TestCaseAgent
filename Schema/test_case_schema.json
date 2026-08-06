@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Connected Car Test Case",
+  "description": "Formal schema for one row of the Connected Cars test case template. Derived empirically from 2,704 rows across 22 existing feature test suites (Existing_TestCases/) plus the AI-generation pipeline's additions (CAN/VSS signal columns). Adopted as the standard schema for all future test case authoring, manual or AI-generated, per team decision on 2026-08-06.",
+  "type": "object",
+  "required": [
+    "sr_no",
+    "issue_type",
+    "test_type_execution",
+    "summary",
+    "parent_id",
+    "requirement_id",
+    "test_description",
+    "gherkins",
+    "environment",
+    "test_set_type",
+    "testing_agency",
+    "test_type_validation_scope",
+    "test_set_category",
+    "can_signals_referenced",
+    "vss_signals_referenced"
+  ],
+  "properties": {
+    "sr_no": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Sequential serial number. Column 1 (Sr. No.). Continues from the last row already in the sheet - never renumber existing rows."
+    },
+    "issue_type": {
+      "type": "string",
+      "pattern": "^Test_[0-9]{2,3}$",
+      "description": "Column 2 (Issue Type). Format Test_NN, zero-padded to at least 2 digits. Must numerically match sr_no (Test_09 <-> sr_no 9). Resets to Test_01 per feature file - do not carry numbering across features."
+    },
+    "test_type_execution": {
+      "type": "string",
+      "enum": ["Manual", "Automated"],
+      "description": "Column 3 (Test Type - execution method). Empirically 2670/2704 historical rows are 'Manual'; 'Automated' has never been observed but the enum exists for when automated execution is tracked. NOTE: there is a second, unrelated column also named 'Test Type' (test_type_validation_scope, column 13) - see that field's description for the disambiguation the team explicitly chose to keep as-is rather than rename."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300,
+      "description": "Column 4 (Summary). Short, single-sentence description of what the test verifies. MUST be byte-identical to test_description (team decision: both columns exist, both carry the same short text - no separate long-form description)."
+    },
+    "parent_id": {
+      "type": "string",
+      "pattern": "^NIO-F[0-9]{3,4}$",
+      "description": "Column 5 (Parent ID). The feature ID this test case belongs to, e.g. NIO-F001."
+    },
+    "requirement_id": {
+      "type": "string",
+      "description": "Column 6 (Requirement ID). Semicolon-and-space-separated list of requirement IDs this test case verifies, e.g. 'NIO-F0001_INT_REQ_001; NIO-F0001_INT_REQ_004'. Every ID here should be traceable to a real requirement in Requirement_Docs/. Never fabricate a requirement ID."
+    },
+    "test_description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300,
+      "description": "Column 7 (Test Description). MUST be byte-identical to summary. Do not write a separate long-form paragraph here - this was explicitly simplified per team feedback (2026-08-06)."
+    },
+    "gherkins": {
+      "type": "string",
+      "description": "Column 8 (Gherkins). Free text with three mandatory sections in order: 'Preconditions:', 'Test Steps:', 'Expected Result:'. Every CAN/VSS signal value asserted in Expected Result must appear verbatim in can_signals_referenced / vss_signals_referenced - no signal should be named in Gherkins that isn't also listed in those columns."
+    },
+    "environment": {
+      "type": "string",
+      "enum": ["LabCar", "Vehicle", "Bench"],
+      "description": "Column 9 (Environment). ENFORCED ENUM as of 2026-08-06 - historical data has 6 spelling variants of these 3 values (LabCar/Labcar/labcar/'Lab Car', Vehicle/vehicle, Bench) which were left un-normalized in the 22 existing files by team decision; all NEW rows must use the exact canonical casing above."
+    },
+    "test_set_type": {
+      "type": "string",
+      "enum": ["Functional"],
+      "description": "Column 10 (Test Set Type). 2701/2704 historical rows are 'Functional' - no other value has ever been observed in this codebase. Enum kept narrow to what's empirically confirmed; widen only when a real non-functional test case actually needs a different value."
+    },
+    "test_er_name": {
+      "type": ["string", "null"],
+      "description": "Column 11 (Test Er Name / Date & Time). Populated post-execution by whoever runs the test in the lab - legitimately blank at generation time. Not required from the AI pipeline."
+    },
+    "testing_agency": {
+      "type": "string",
+      "enum": ["TML COC", "Labcar", "PAT"],
+      "description": "Column 12 (Testing Agency). Header text lists three intended options (Labcar / PAT / TML COC) but 2701/2704 historical rows use only 'TML COC' - the other two have never actually been used. Enum includes all three per the header's stated intent."
+    },
+    "test_type_validation_scope": {
+      "type": "string",
+      "enum": ["Full validation"],
+      "description": "Column 13 (also labeled 'Test Type' in the sheet - a naming collision with column 3 that the team decided to leave as-is rather than rename). This is validation SCOPE, not execution method: 2701/2704 historical rows are 'Full validation'. Do not confuse with test_type_execution (Manual/Automated)."
+    },
+    "test_set_category": {
+      "type": "string",
+      "enum": [
+        "Happy Path",
+        "Negative Case",
+        "Edge Case - Cross-Module Interaction",
+        "Edge Case - Signal Fault/Boundary",
+        "Edge Case - DFMEA-Derived",
+        "User-Journey"
+      ],
+      "description": "Column 14 (Test Set Category). REQUIRED for all new/AI-generated test cases as of 2026-08-06. This field is empty in all 2,704 existing historical rows - this pipeline is the first to populate it. Legacy rows are exempt/grandfathered, not required to be backfilled unless separately scoped."
+    },
+    "can_signals_referenced": {
+      "type": "string",
+      "description": "Column 15 (CAN Signals Referenced) - NEW as of the AI-generation pipeline, adopted as standard schema as of 2026-08-06 (does not exist in the original 22 historical files). Pipe-delimited table: 'Signal (DBC) | Msg ID(dec) | Bit Start/Len | Tx>Rx | Values'. GUARDRAIL: every signal name + message ID + bit position here must be looked up from Schema/../Signal_Catalogs/unified_signal_index.json or dbc_raw_reference.json - never free-generated. If a signal cannot be found in either source, write 'SIGNAL NOT FOUND - flag for review' instead of guessing."
+    },
+    "vss_signals_referenced": {
+      "type": "string",
+      "description": "Column 16 (VSS Signals Referenced) - NEW as of the AI-generation pipeline, adopted as standard schema as of 2026-08-06. Free text grouped by tier (Internal TCU decode / External Interface-Cloud / App-facing standard VSS). GUARDRAIL: every VSS path must be looked up from unified_signal_index.json. If a CAN signal exists but has no VSS mapping in the Master Signal Catalog, say so explicitly (see Test_91's SASSUnLockAllDoorCommand for the pattern) rather than inventing a VSS path."
+    }
+  }
+}

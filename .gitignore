@@ -1,0 +1,12 @@
+# Proprietary TML source data - not tracked in this repo (see Docs/architecture.md
+# for the full folder map; these directories exist locally but stay out of version
+# control on purpose - CAN bit-level specs, requirement docs, and test case data
+# are confidential).
+/Signal_Catalogs/
+/Requirement_Docs/
+/Existing_TestCases/
+/Generated_TestCases/
+
+# macOS / Excel artifacts
+.DS_Store
+~$*.xlsx
