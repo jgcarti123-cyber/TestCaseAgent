@@ -11,3 +11,11 @@
 # macOS / Excel artifacts
 .DS_Store
 ~$*.xlsx
+
+# Credentials - defensive, even though no script currently reads from a
+# .env file (Jira/Xray creds are read from real environment variables
+# only, per Scripts/*.py docstrings). Covers it if that ever changes.
+.env
+.env.*
+*.pem
+*.key

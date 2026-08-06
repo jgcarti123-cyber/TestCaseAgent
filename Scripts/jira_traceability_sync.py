@@ -161,6 +161,11 @@ def build_from_api(project_key, jql_extra=None):
             "Set JIRA_BASE_URL, JIRA_EMAIL, and JIRA_API_TOKEN as environment "
             "variables before using --from-api. Never pass these as CLI args."
         )
+    if not base_url.startswith("https://"):
+        raise SystemExit(
+            f"JIRA_BASE_URL must start with https:// (got: {base_url!r}). "
+            "Refusing to send Basic Auth credentials over an unencrypted connection."
+        )
 
     jql = f"project = {project_key}"
     if jql_extra:
