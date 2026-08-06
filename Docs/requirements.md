@@ -26,17 +26,22 @@ Real `.dbc` file + Master Signal Catalog, not PDF-parsed tables.
 - **Key decisions**: dedup via exact-field match now, embeddings noted as a future upgrade; Tier 2 failures route to human review rather than auto-reject; mandatory human sign-off for Edge Case categories + low-confidence tags only (Happy Path/Negative Case can auto-release); `SIGNAL NOT FOUND` hard-blocks release, no visible-flag exception.
 - **Validated against the 3 existing test cases** — see the worked example table in `definition_of_done.md`. In the process, caught and corrected a false "fabricated signal" call on `Test_91` (the signal was real; the derived index was just incomplete) — this produced the two-source signal-verification rule now in Tier 1 gate #2 and a new entry in `guardrails.md` #2.
 
-## 4. Requirement traceability data — 🟡 TOOLING BUILT, NOT YET CLOSED (2026-08-06)
+## 4. Requirement traceability data — 🟡 LIVE DATA PULLED FOR NIO-F001, GRANULARITY GAP FOUND (2026-08-06)
 
 - **Finding**: all 2,704 rows across all 22 existing feature files have an empty Requirement ID column — zero local traceability data exists, not a subset. Confirmed by direct count, not assumed.
-- **Source of truth**: Jira (team-confirmed), API access achievable. **No Jira MCP connector is set up in this environment yet** — nothing was queried live.
-- **Built artifacts**: `Scripts/jira_traceability_sync.py` (CSV-export path tested against a synthetic sample; live-API path written against the documented Jira REST API v3 shape but not run against a real instance), `Docs/traceability.md` (full design, what to gather from the Jira admin, output schema).
-- **Still needed to actually close this out**: a real Jira CSV export (or live API access) to run the sync against; confirmation of whether test cases are tracked via plain Jira issues or a plugin (Xray/Zephyr) — the current API path doesn't handle plugin-specific fields yet.
+- **Source of truth**: Jira (team-confirmed). **Atlassian MCP connector is now set up and connected** (`jiratatamotors.atlassian.net`) — live-queried for Intrusion Alert on 2026-08-06, superseding the "no connector" status below.
+- **Confirmed live**: Jira is on **Xray** (Test/Test Execution/Test Set issue types). Test cases are NOT tracked via a plain "Requirement ID" text field or via the local `NIO-F0001_INT_REQ_NNN` scheme — a JQL text search for `"NIO-F0001"` across the entire instance returned zero hits. Real traceability exists via Xray's **Parent-Child** issue link from the Feature issue down to individual Test issues — i.e. at **feature granularity, not individual-requirement-line granularity**.
+- **Intrusion Alert in Jira**: Feature `NIF-117` ("Intrusion Alert", project NIF, child of `NIF-45` "Vehicle Alert"), status "Released to Internal Validation" — linked to 40 Test issues (`NIV-1582`–`NIV-1621`, project NIV, all status Open) and 27 closed Validation Bug issues via "Blocks" links. Full data in `Traceability/requirement_traceability.json` under `features.NIO-F001`.
+- **Built artifacts**: `Scripts/jira_traceability_sync.py` (CSV/API paths, still unrun against this instance — superseded for this feature by the direct MCP pull above), `Docs/traceability.md` (full design, now needs a follow-up note on the granularity gap).
+- **Decision (2026-08-06)**: feature-level Jira check + semantic similarity against real Jira Test summaries — chosen over requesting per-requirement-line linkage from admins (blocked on org timeline) or accepting feature-level-only with no finer check. No admin dependency; usable today. See `traceability.md` → Granularity gap for the full reasoning.
+- **Still needed to actually close this out**: the semantic-similarity piece itself isn't built yet (see `architecture.md` Coverage & Dedupe Checker stage); `Scripts/jira_traceability_sync.py`'s CSV/API paths still assume the old `REQ_NNN`-per-requirement shape and need updating to match the real `features` structure; unconfirmed for the other 21 features (only Intrusion Alert has been live-queried so far).
 - **Scope**: going forward only, matches the item 2 decision — historical 2,704 rows are not being retroactively backfilled with Jira links as part of this pipeline.
 
-## 5. Field/bug history feed — ⬜ PENDING
+## 5. Field/bug history feed — 🟡 PARTIAL DATA FOR INTRUSION ALERT (2026-08-06)
 
-Bug tracker or known-issues export for Intrusion Alert (and eventually other features). This is where genuinely novel edge cases come from — cross-referencing documents harder has diminishing returns.
+The same live Jira MCP pull for item 4 incidentally answered this too — 27 closed Validation Bug issues linked to `NIF-117`, now sitting in `Traceability/requirement_traceability.json` under `features.NIO-F001.linked_bug_issues`. Not yet used systematically (no automated "turn closed bugs into edge-case candidates" step exists in the pipeline), but real data, not a placeholder. Standout examples worth generating test cases from: `NIV-6819` (alert timestamp shows UST while phone shows IST — a real timezone bug), `NIV-9610` (EV/PV cross-variant alert suppression), `NIV-6850` (duplicate/continuous alert firing — a debounce failure).
+
+**Still pending**: this for the other 21 features, and a designed step in the pipeline that actually consumes `linked_bug_issues` to propose edge cases (currently just data sitting in the JSON, not wired into Test Case Generator).
 
 ## 6. Test bench capability list — ⬜ PENDING
 

@@ -27,6 +27,7 @@ A test case is never silently dropped. Tier 1 failure = regenerate. Tier 2 failu
 5. **Category populated.** `test_set_category` is a non-empty, valid enum value.
 6. **Not a duplicate — exact-field match (current method).** Flag as duplicate if `parent_id` + `requirement_id` + `test_set_category` + the primary trigger signal (first row of `can_signals_referenced`) all match an existing row in `Existing_TestCases/` or elsewhere in the same generation batch.
    - **Known limitation:** this catches true/near-identical duplicates but not paraphrased ones (same scenario, differently worded). Embedding-based semantic similarity is the documented upgrade path — see `requirements.md` item 3 follow-up — not built yet, no new infra required until it is.
+   - **Scope extended 2026-08-06**: this same semantic-similarity check, once built, also needs to run against `Traceability/requirement_traceability.json`'s `features.*.linked_test_issues` summaries (real Jira Test issue titles), not just `Existing_TestCases/`. Jira's traceability tops out at feature-level, not per-requirement-line, so scenario-level similarity against real Jira test summaries is the chosen way to catch likely duplicates there — see `traceability.md` → Granularity gap decision. A naive keyword-overlap check was tried and rejected: it produced a false 75% "match" between two unrelated test cases purely from shared boilerplate words, confirming this needs real embeddings, not a bag-of-words heuristic.
 
 ## Tier 2 — Quality checks (judgment, route to NEEDS_REVIEW on failure)
 
