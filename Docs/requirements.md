@@ -65,6 +65,8 @@ What can the physical LabCar/Vehicle/Bench rigs actually simulate/inject? No poi
 
 UNECE R155/ASIL classification for Intrusion Alert, if one exists, so test case severity/priority can reflect it.
 
-## 8. A golden eval set — ⬜ PENDING
+## 8. A golden eval set — 🟡 STARTED (2026-08-06)
 
-10–15 hand-reviewed, expert-approved test cases (can draw from the 2,704 existing rows) held out specifically to regression-test the pipeline whenever a prompt or document changes.
+- **Built artifact**: `Docs/golden_eval_set.md` — two-tier set. Tier 1 (3 cases, confirmed golden): `Test_89`/`Test_90`/`Test_91` — the only test cases matching the current schema end to end AND actually reviewed by a human across this project. Tier 2 (12 cases, candidates pending human sign-off): a reasoned scenario-diversity shortlist from Intrusion Alert's 88 historical rows, not an exhaustive permutation of every door/power-mode combination.
+- **Real cross-check already found**: historical Sr.2 lines up conceptually with `Test_90` (happy path) and Sr.18 with `Test_91` (negative case) — the pipeline's own output and the historical human-written baseline agree on what the core scenarios are, even though neither pair is byte-identical.
+- **Still needed**: actual human review to promote Tier 2 candidates to Tier 1; a defined automated diffing method for re-runs (currently manual comparison); coverage for features beyond Intrusion Alert once their pipelines exist.

@@ -14,6 +14,7 @@ Generating positive, negative, and edge-case test cases for connected-car featur
 4. **`Docs/requirements.md`** — living checklist of what's done vs. pending.
 5. **`Docs/tools.md`** / **`Docs/harness_design.md`** — implementation detail.
 6. **`Schema/test_case_schema.json`** — formal schema for every column; validate output against this before writing to Excel.
+7. **`Docs/golden_eval_set.md`** — the fixed regression baseline; re-check pipeline output against this after any prompt/schema change.
 
 ## Folder map
 
@@ -43,4 +44,4 @@ Traceability/             ← requirement_traceability.json, Jira-sourced, gitig
 
 ## Open items
 
-See `Docs/requirements.md` items 6–8 (test bench capability list, compliance mapping, golden eval set) and the two pending tasks logged in-session (residual signal discrepancies, `DoorStateDrvr` naming ambiguity) — both need a domain expert, not further agent investigation. Item 4 (traceability) has a live Jira connector and real per-requirement data for 2 of 22 features (Intrusion Alert, Time Fencing Alert), but the semantic-similarity dedup piece isn't built yet. Item 5 (bug history) has real, field-verified severity/associated-project/due-date/comment data for Intrusion Alert's 27 linked bugs (not yet wired into test case generation), plus a built-but-unrun script (`Scripts/xray_execution_status_sync.py`) for Xray pass/fail execution status — a genuinely separate system from Jira, needs its own credentials, see `Docs/traceability.md` for why.
+See `Docs/requirements.md` items 6–7 (test bench capability list, compliance mapping) and the two pending tasks logged in-session (residual signal discrepancies, `DoorStateDrvr` naming ambiguity) — all need a domain expert, not further agent investigation. Item 4 (traceability) has a live Jira connector: full per-requirement data for 2 features (Intrusion Alert, Time Fencing Alert), feature-level data (Test + bug counts) for 18 more — 4 local features (`Auto Ecall`, `E-Call Manual`, `RESS`, `B-Call SoftSwitch`) deliberately skipped, ambiguous/no Jira match, needs team confirmation. Semantic-similarity dedup piece still not built. Item 5 (bug history) has real, field-verified severity/associated-project/due-date/comment data for Intrusion Alert's 27 linked bugs (not yet wired into test case generation). Xray execution status (Pass/Fail) is **deferred** — blocked on Xray admin access, not a code problem; `Scripts/xray_execution_status_sync.py` stays built and ready. Item 8 (golden eval set) started — `Docs/golden_eval_set.md`, 3 confirmed + 12 candidates pending human review.
