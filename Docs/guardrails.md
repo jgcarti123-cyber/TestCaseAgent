@@ -16,6 +16,8 @@ The single highest-risk failure mode in this domain. Signal Resolution must be a
 
 **Rule**: before reporting "source A and source B disagree," check whether the disagreement fits a systematic pattern (a numbering/unit/encoding-convention difference) rather than assuming it's a genuine conflict. Only escalate what survives that check. In this project, that dropped the discrepancy count from 1,592 to 345 genuinely-unresolved entries — a 4.6x difference between what looked true at first glance and what was actually defensible.
 
+**Second near-miss, same rule (2026-08-06, while building `definition_of_done.md`).** `unified_signal_index.json` only covers 2,544 of 3,593 DBC signal names (70.8%) — it's built from the Master Signal Catalog, which lacks a VSS mapping for 1,375 real DBC signals. `Test_91`'s `SASSUnLockAllDoorCommand` wasn't in the index and was initially — wrongly — flagged as a likely fabrication. Checking the **raw DBC directly** found it exactly as used (message `SASS_Event2_RC`, frame ID 538, bit 7/length 1). "Not in the derived index" ≠ "doesn't exist" — the index is a convenience artifact with known incomplete coverage, not the ground truth itself. The raw `.dbc` is. See `definition_of_done.md` Tier 1 gate #2 for the two-source check this produced: index first, raw DBC fallback, only flag `SIGNAL NOT FOUND` if absent from both.
+
 ## 3. Mandatory citation on every test case
 
 Each generated case must carry the exact source (document, section/page, requirement ID) its logic came from. Makes review fast, makes hallucination visible immediately — a case with no citable source is automatically suspect.
@@ -30,7 +32,7 @@ Validate against `Schema/test_case_schema.json` with `jsonschema` before writing
 
 ## 6. Dedup enforced by a tool with a real similarity threshold
 
-Never trust the model's self-report of "I checked, no duplicates." Diff against `Existing_TestCases/` (2,704 rows) and against other cases in the same batch, programmatically.
+Never trust the model's self-report of "I checked, no duplicates." Diff against `Existing_TestCases/` (2,704 rows) and against other cases in the same batch, programmatically. Current method: exact-field match (`parent_id` + `requirement_id` + `test_set_category` + primary trigger signal) — see `definition_of_done.md` Tier 1 gate #6 for the exact rule and its known limitation (won't catch paraphrased duplicates; embedding similarity is the documented future upgrade).
 
 ## 7. Executability guardrail
 

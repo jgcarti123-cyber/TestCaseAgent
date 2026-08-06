@@ -8,7 +8,7 @@ Real `.dbc` file + Master Signal Catalog, not PDF-parsed tables.
 
 - **Source files**: `Signal_Catalogs/TML_IVN_Communication_Matrix_CM_CANFD_V1.1.5_TM.dbc` (436 messages, 3,623 signals), `Signal_Catalogs/Master_Signal_Catalog_V4.4_20.8.25.xlsx` (VSS↔CAN cross-reference, 3,684 rows).
 - **Built artifact**: `Signal_Catalogs/unified_signal_index.json` — cross-validated index, every entry flagged `bit_position_match: true/false`. This is what Signal Resolution queries; never re-derive from the raw PDFs.
-- **Known gaps**: 345 residual catalog-vs-DBC discrepancies unresolved (see task #6), `DoorStateDrvr` naming ambiguity between message 748/946 unresolved (task #7), 1,376 DBC signals have no VSS mapping yet (`dbc_signals_without_vss_mapping.json`).
+- **Known gaps**: 345 residual catalog-vs-DBC discrepancies unresolved (see task #6), `DoorStateDrvr` naming ambiguity between message 748/946 unresolved (task #7), 1,375 DBC signals have no VSS mapping and therefore no entry in `unified_signal_index.json` at all (confirmed by direct count: 2,544 of 3,593 DBC signal names indexed, 70.8% coverage). **This gap has a real consequence, not just a documentation footnote** — see `guardrails.md` #2 and `Docs/definition_of_done.md` Tier 1 gate #2 for the two-source (index + raw DBC) verification rule it produced.
 
 ## 2. Machine-readable test case schema — ✅ DONE (2026-08-06)
 
@@ -20,17 +20,11 @@ Real `.dbc` file + Master Signal Catalog, not PDF-parsed tables.
   - `CAN Signals Referenced` / `VSS Signals Referenced` columns adopted as the new standard schema for all future test cases, not just this pipeline.
 - Validated against all 3 generated test cases with zero schema errors.
 
-## 3. A "definition of done" rubric — ⬜ PENDING
+## 3. A "definition of done" rubric — ✅ DONE (2026-08-06)
 
-What makes a generated test case acceptable, as an explicit, checkable list — not vibes. Draft candidate criteria (confirm with team before finalizing):
-
-- Traces to a real requirement ID present in `Requirement_Docs/`.
-- Every CAN/VSS signal is `bit_position_match: true` in `unified_signal_index.json`, or explicitly flagged `SIGNAL NOT FOUND`.
-- Passes `Schema/test_case_schema.json` validation.
-- Not a near-duplicate of an existing test case (dedup threshold TBD).
-- `Test Set Category` is populated and matches the actual scenario logic.
-
-This becomes the rubric for the Reviewer stage and for a human spot-check.
+- **Built artifact**: `Docs/definition_of_done.md` — two-tier rubric (Tier 1 hard gates, auto-checkable; Tier 2 quality checks, route to human on failure) plus a human-sign-off policy and status lifecycle (DRAFT → RELEASED / NEEDS_REVIEW / REJECTED).
+- **Key decisions**: dedup via exact-field match now, embeddings noted as a future upgrade; Tier 2 failures route to human review rather than auto-reject; mandatory human sign-off for Edge Case categories + low-confidence tags only (Happy Path/Negative Case can auto-release); `SIGNAL NOT FOUND` hard-blocks release, no visible-flag exception.
+- **Validated against the 3 existing test cases** — see the worked example table in `definition_of_done.md`. In the process, caught and corrected a false "fabricated signal" call on `Test_91` (the signal was real; the derived index was just incomplete) — this produced the two-source signal-verification rule now in Tier 1 gate #2 and a new entry in `guardrails.md` #2.
 
 ## 4. Requirement traceability data — ⬜ PENDING
 

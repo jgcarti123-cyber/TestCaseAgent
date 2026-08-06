@@ -4,12 +4,12 @@
 
 1. **Document Ingestion & Indexing** — parses every requirement PDF, the Master Signal Catalog, DFMEA, and existing test suites into a structured, queryable index tagged by feature, requirement ID, CAN signal, VSS path, and message ID. Run once per document version, not once per test case.
 2. **Feature Understanding (Requirement Analyst)** — for the target feature, extracts user stories, preconditions, the documented CAN signal list, requirement IDs, and lifecycle rules.
-3. **Signal Resolution** — resolves every signal name mentioned anywhere into its full definition. **This is a deterministic tool call against `Signal_Catalogs/unified_signal_index.json`, never LLM free-generation.** Any signal not found in the index is flagged `SIGNAL NOT FOUND`, never guessed.
+3. **Signal Resolution** — resolves every signal name mentioned anywhere into its full definition. **This is a deterministic tool call, never LLM free-generation.** Two-source lookup order: `Signal_Catalogs/unified_signal_index.json` first, then the raw `.dbc` file directly if not found there (the index only covers 70.8% of DBC signals — see `guardrails.md` #2). Only flagged `SIGNAL NOT FOUND` if absent from both.
 4. **Module Interaction Mapper** — scans sibling feature docs and the DFMEA to find where CAN frames, ECUs, or state machines overlap with the target feature. This is what surfaces edge cases nobody explicitly wrote down (see Test_89 as the worked example).
 5. **Test Case Generator** — produces cases across the fixed taxonomy in `Schema/test_case_schema.json`'s `test_set_category` enum: Happy Path, Negative Case, Edge Case (Cross-Module / Signal-Fault-Boundary / DFMEA-Derived), User-Journey.
 6. **Coverage & Dedupe Checker** — diffs new cases against the existing corpus (`Existing_TestCases/`, 2,704 rows across 22 features) to avoid duplicates. Enforced by a similarity-threshold tool, not by asking the LLM "did you check?"
 7. **Formatter** — writes output conforming to `Schema/test_case_schema.json`. Validate with `jsonschema` before writing to the `.xlsx`.
-8. **Reviewer (QA-of-QA)** — rejects any test case whose asserted signal value doesn't match the catalog's enum, or whose logic contradicts the documented requirement. Not the final gate for safety/security-relevant cases — see `guardrails.md`.
+8. **Reviewer (QA-of-QA)** — applies `Docs/definition_of_done.md`: Tier 1 hard gates (schema, signal verification, traceability, dedup) auto-reject; Tier 2 quality checks (category-logic match, no orphan signal claims, step specificity, confidence-tag accuracy) route to human review rather than auto-reject. Not the final gate for Edge Case categories or low-confidence cases — those need mandatory human sign-off regardless of automated pass/fail. See `guardrails.md` and `definition_of_done.md`.
 
 ## Effort allocation per stage
 
