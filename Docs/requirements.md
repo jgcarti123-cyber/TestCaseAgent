@@ -57,12 +57,13 @@ The live Jira MCP pull for item 4 incidentally answered the base version of this
 
 **Still pending**: bug enrichment for the other 21 features; a designed pipeline step that actually consumes `linked_bug_issues` to propose edge cases (currently just data sitting in the JSON, not wired into Test Case Generator). Standout bug examples worth generating test cases from: `NIV-6819` (alert timestamp shows UST while phone shows IST — a real timezone bug), `NIV-9610` (EV/PV cross-variant alert suppression), `NIV-6850` (duplicate/continuous alert firing — a debounce failure).
 
-## 6. Test bench capability list — 🟡 STARTED (2026-08-06)
+## 6. Test bench capability list — 🟢 SUBSTANTIALLY DONE for HIL (2026-08-07)
 
-- **Built artifact**: `Docs/test_bench_capabilities.md`.
-- **Confirmed**: 4 environments, not 3 — `HIL` is real and relevant alongside `LabCar`/`Vehicle`/`Bench` (matches a Jira `Environment` field value never actually used in this feature's history until now). At least one rig supports direct CAN signal injection (not just physical triggering) — makes fault/boundary-condition test cases realistically executable.
-- **Action needed**: add `HIL` to `Schema/test_case_schema.json`'s `environment` enum once the capability detail below is filled in.
-- **Still needed — genuine domain-expert territory, not more agent work**: which specific environment(s) support CAN injection; the full per-environment capability matrix (what each can/can't simulate — network degradation, multi-module race conditions, etc.).
+- **Built artifacts**: `Docs/test_bench_capabilities.md`; `HIL_Automation/hil_keyword_index.json` (parsed from team-provided `HIL_Automation/Keywords.xlsx` — the real HIL automation keyword library, 19-20 hardware modules, not inferred).
+- **Confirmed with real data, not just a yes/no**: HIL's CAN module (NI PXIe 8510) can inject any signal in the loaded DBC by name (`Set CANX Signals`), validate values with tolerances (`Check CANX Signal`), and inject raw/UDS frames. Separately, a dedicated **Fault Insertion Unit** (NI PXI 2510, 68 channels) can open- or short-circuit specific channels — the concrete answer to whether `SIGNAL NOT FOUND`/implausible-signal conditions are physically testable, not just theoretical.
+- **Schema updated**: `environment` enum now includes `HIL`.
+- **New guardrail added** (`guardrails.md` #11): HIL-targeted Gherkin steps should prefer real keywords from `hil_keyword_index.json` over free prose where one exists — the index includes exact Gherkin phrasing for app-level actions.
+- **Still open**: a handful of parsing caveats in the auto-extracted index need spot-verification (see the index's own `parsing_caveats` field); `LabCar`/`Vehicle`/`Bench` capability detail is still not documented — this pass only substantially answered HIL.
 
 ## 7. Compliance/safety mapping — 🟡 CHECKED, BOTH OPEN (2026-08-06)
 

@@ -1,21 +1,51 @@
 # Test Bench Capability List — Test Case Generation Pipeline
 
-Started 2026-08-06. See `requirements.md` item 6. Purpose: don't generate a test case for a fault condition the physical/simulated rig can't actually produce.
+Started 2026-08-06, substantially answered 2026-08-07. See `requirements.md` item 6.
 
-## Confirmed environments (2026-08-06)
+## Confirmed environments
 
-Four, not three — local historical data (`Existing_TestCases/`) only ever used `LabCar`/`Vehicle` for Intrusion Alert, and the formal schema (`Schema/test_case_schema.json`) only enumerates `LabCar`/`Vehicle`/`Bench`. Team confirmed a fourth is also real and relevant: **`HIL`** (Hardware-in-the-Loop) — this matches a value already present in Jira's own `Environment` custom field (`customfield_10155` on the Validation Bug issue type) that just hadn't shown up in this feature's test history yet.
+Four: `LabCar`, `Vehicle`, `Bench`, and **`HIL`** (Hardware-in-the-Loop) — the fourth confirmed 2026-08-06, matching a Jira `Environment` field value never actually used in Intrusion Alert's test history until now.
 
-**Action needed**: `Schema/test_case_schema.json`'s `environment` enum currently only has `LabCar`/`Vehicle`/`Bench` — needs `HIL` added once the capability detail below is filled in enough to actually generate HIL-targeted test cases correctly.
+## HIL capability — real data, not inferred (2026-08-07)
 
-## Confirmed capability
+Team provided `HIL_Automation/Keywords.xlsx` — the actual HIL rig automation keyword library (also parsed into `HIL_Automation/hil_keyword_index.json` for programmatic lookup; see that file's `parsing_caveats` field before trusting every module — CAN, Fault Insertion Unit, GNSS, and Cellular Network were manually spot-checked against the source and match; a few others weren't). This is real hardware capability data, not something inferred or guessed.
 
-**At least one rig supports direct CAN signal injection** — setting a signal value (e.g. `IntrusionInfoState = 1`) directly via a bus tool, without physically triggering the real sensor/actuator (e.g. actually opening a door). This matters a lot: it's what makes fault/boundary-condition test cases (`SIGNAL NOT FOUND`, implausible values, `IntrusionInfoStateStatus = 3`) realistically executable rather than theoretical.
+**Confirmed: HIL can inject any signal defined in the loaded DBC file**, via the CAN module (`hil.simulation.can` — NI PXIe 8510, 4 channels, 5 Mbps). Key keywords:
 
-## Still needed — genuinely needs a domain expert, not more agent investigation
+| Keyword | What it does |
+|---|---|
+| `Add CANX Database` | Load a DBC file for the simulation |
+| `Set CANX Signals` | Set arbitrary signal values by name — cyclic or event-triggered |
+| `Set CANX Configuration` | Modify baudrate/database/termination from DBC config |
+| `Check CANX Signal` | Validate an actual signal value against an expected value + tolerance |
+| `Check CANX Message` | Validate a full frame (by name, ID, or payload) |
+| `Send CANX Raw Message` | Inject an arbitrary raw CAN/CAN-FD frame, including UDS |
+| `Get CANX Bus Load` | Read current bus load % |
 
-- **Which specific environment(s)** support direct CAN injection — confirmed "at least one," not yet confirmed which. Matters because it determines which environment a fault/boundary-condition test case should be assigned to.
-- **Per-environment capability matrix** — for each of LabCar / Vehicle / Bench / HIL: what can it physically or programmatically produce? E.g., can any rig simulate a real GPS/cellular signal degradation (relevant to the "no mobile network" / "low signal" scenarios already in the historical test suite, Sr. 36/40 in `golden_eval_set.md`)? Can any rig simulate multi-module race conditions (relevant to `Test_89`'s cross-module interaction category)?
-- **What's explicitly NOT possible** — the inverse of the above. Knowing what can't be tested is as valuable as knowing what can, since it's a hard constraint on what the pipeline should ever propose generating.
+This directly resolves the open question from the earlier pass: fault/boundary-condition test cases (e.g. setting `IntrusionInfoState` directly without physically opening a door) are realistically executable on HIL.
 
-Once this is filled in, the Test Case Generator stage (`architecture.md`) should cross-check every proposed test case's required environment/signal-injection capability against this list before finalizing — a test case for a fault condition no rig can produce should either be flagged or reassigned, not silently generated as if it were executable.
+**Also confirmed: dedicated fault-injection hardware exists**, separate from CAN signal-setting — the **Fault Insertion Unit** (`hil.simulation.fault` — NI PXI 2510, 68 channels, 2 buses). Keywords: `Open FIU "Channel"` (open-circuit a channel — simulates a disconnected sensor) and `Short FIU Group` (short-circuit a group of channels). **This is the concrete answer to whether `SIGNAL NOT FOUND` / implausible-signal conditions are physically testable, not just settable via CAN injection** — a genuinely disconnected/faulted sensor can be reproduced at the hardware level, not just simulated by writing a signal value.
+
+## Full HIL module list (from `hil_keyword_index.json`)
+
+19–20 modules total, covering far more than CAN. Ones most relevant to this pipeline beyond CAN/FIU:
+
+| Module | Namespace | Relevance |
+|---|---|---|
+| GNSS | `hil.simulation.gnss` | Location-dependent scenarios (geofencing, tracking-link features) |
+| Cellular Network | `hil.simulation.bse` | Network availability/signal-strength scenarios (the "no mobile network" / "weak signal" edge cases already in `golden_eval_set.md`) |
+| Programmable Power Supply | `hil.simulation.pps` | Battery/power-mode scenarios |
+| Analog/Digital I/O | `hil.simulation.io` | Generic discrete signal simulation beyond CAN |
+| Mobile Application Tester | `hil.validation.mobileapp` | Validating the actual mobile app response, not just the CAN side |
+| Bluetooth / Wi-Fi | `hil.simulation.bluetooth` / `hil.simulation.wifi` | Connectivity-dependent scenarios |
+
+Full detail (every keyword, input/output params, per module) is in `HIL_Automation/hil_keyword_index.json` — query it rather than re-reading `Keywords.xlsx` by hand.
+
+## New implication for Gherkin generation
+
+`HIL_Automation/Keywords.xlsx`'s `Sheet1` (App Automation Tester keywords) gives **exact Gherkin phrasing** for mobile-app-side actions (e.g. `I Set TimeFence StartTime "5 mins" later than current time`). This means Gherkin steps the pipeline generates for HIL-executed test cases should prefer these real keywords over free-prose descriptions where an equivalent keyword exists — otherwise the generated Gherkin reads fine to a human but isn't actually executable by the real automation harness. See `guardrails.md` for this as a new rule.
+
+## Still open
+
+- Full validation of the parsing caveats noted in `hil_keyword_index.json` (Automotive Ethernet / Bluetooth showing 0 entries, Mobile Application Tester keyword-module name mismatch, Wi-Fi signal/keyword count gap).
+- `LabCar`/`Vehicle`/`Bench` (non-HIL) capability detail — this pass only substantially answered HIL. The other three environments' capability matrices are still not documented beyond "used historically for physical-trigger scenarios."

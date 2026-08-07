@@ -38,7 +38,7 @@ Never trust the model's self-report of "I checked, no duplicates." Diff against 
 
 ## 7. Executability guardrail
 
-Cross-check generated cases against the test bench capability list (requirement #6 in `requirements.md`, not yet built) before marking them ready. A well-written test case for hardware the lab doesn't have is dead weight.
+Cross-check generated cases against the test bench capability list before marking them ready. A well-written test case for hardware the lab doesn't have is dead weight. **Substantially unblocked 2026-08-07** — real HIL capability data now exists (`Docs/test_bench_capabilities.md`, `HIL_Automation/hil_keyword_index.json`): CAN signal injection and dedicated fault-insertion hardware (open/short circuit) are both confirmed real, so fault/boundary-condition test cases for `environment: HIL` are genuinely executable, not just theoretical. LabCar/Vehicle/Bench capability detail is still not documented — this guardrail only fully applies to HIL-targeted cases for now.
 
 ## 8. Iteration/cost caps
 
@@ -51,3 +51,7 @@ Since this touches the connected app, no real VINs, tokens, or account data shou
 ## 10. Human sign-off gate before "released"
 
 The Reviewer stage (item 8 in the pipeline) is not the final gate for anything safety/security-relevant. Route Interaction Mapper output and any low-confidence-tagged test case to a human SME before it's considered final.
+
+## 11. Prefer real automation keywords over free-prose Gherkin, where one exists
+
+For `environment: HIL` test cases, check `HIL_Automation/hil_keyword_index.json` before writing a Gherkin step from scratch (2026-08-07). If a real keyword exists for the action (e.g. `Set CANX Signals`, `Check CANX Signal`, or an app-level keyword like `Set TimeFence StartTime` with its own defined Gherkin phrasing), use it — verbatim where the index gives an exact Gherkin example, or in the same phrasing style otherwise. A Gherkin step that reads fine to a human but doesn't match any real automation keyword may not actually be executable by the team's automation harness. Treat this the same way as the signal-invention guardrail (#1): don't free-generate an action name when a real one exists to look up.

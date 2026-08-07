@@ -7,6 +7,7 @@
 /Existing_TestCases/
 /Generated_TestCases/
 /Traceability/
+/HIL_Automation/
 
 # macOS / Excel artifacts
 .DS_Store

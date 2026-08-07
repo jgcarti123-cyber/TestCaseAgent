@@ -63,8 +63,8 @@
     },
     "environment": {
       "type": "string",
-      "enum": ["LabCar", "Vehicle", "Bench"],
-      "description": "Column 9 (Environment). ENFORCED ENUM as of 2026-08-06 - historical data has 6 spelling variants of these 3 values (LabCar/Labcar/labcar/'Lab Car', Vehicle/vehicle, Bench) which were left un-normalized in the 22 existing files by team decision; all NEW rows must use the exact canonical casing above."
+      "enum": ["LabCar", "Vehicle", "Bench", "HIL"],
+      "description": "Column 9 (Environment). ENFORCED ENUM as of 2026-08-06 - historical data has 6 spelling variants of LabCar/Vehicle/Bench (LabCar/Labcar/labcar/'Lab Car', Vehicle/vehicle, Bench) which were left un-normalized in the 22 existing files by team decision; all NEW rows must use the exact canonical casing above. 'HIL' added 2026-08-07 - confirmed real and distinct from the other three, with its own automation keyword library (see Docs/test_bench_capabilities.md and HIL_Automation/hil_keyword_index.json). A test case with environment=HIL should, where possible, reference real keywords from that index in its Gherkin steps rather than free prose - see guardrails.md."
     },
     "test_set_type": {
       "type": "string",
