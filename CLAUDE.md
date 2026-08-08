@@ -25,6 +25,10 @@ Docs/                     ← architecture, guardrails, requirements, tools, har
                              traceability, golden_eval_set, test_bench_capabilities, compliance_mapping
 Schema/test_case_schema.json
 Scripts/                  ← jira_traceability_sync.py, xray_execution_status_sync.py (built, Xray one unrun - needs Xray admin access)
+Scripts/service/          ← FastAPI tool service (scaffolded 2026-08-07) - /tools/resolve_signal, /tools/validate_schema,
+                             /tools/check_dedup implemented for real; /tools/hil_keyword_lookup, /tools/jira_traceability_check
+                             stubbed (501). Run: `cd Scripts && uvicorn service.main:app --reload`. Tests: `python -m pytest
+                             service/tests/` (from Scripts/). See Docs/tools.md for what's real vs. stubbed and why.
 Signal_Catalogs/          ← DBC + Master Signal Catalog + derived JSON indexes (ground truth) — gitignored
 Requirement_Docs/         ← NF-FFW PDFs + DFMEA — gitignored
 Existing_TestCases/       ← 22 features, 2,704 rows (dedup/coverage reference — zero Requirement ID links, see traceability.md) — gitignored
@@ -38,7 +42,7 @@ Everything gitignored above is real TML data that stays local-only — see `.git
 
 ## Implementation stack — confirmed 2026-08-07
 
-**Python + FastAPI.** See `Docs/tools.md` for the full reasoning. The actual agentic pipeline (tools an agent calls autonomously, per `Docs/architecture.md`'s 8 stages) is **not built as running code yet** — everything so far has been manually orchestrated across this conversation. `Docs/tools.md`'s "Needed, not yet built" table, topped by FastAPI service scaffolding, is the concrete next-build list.
+**Python + FastAPI.** See `Docs/tools.md` for the full reasoning. **FastAPI service scaffolding is now built** — `Scripts/service/`, with `/tools/resolve_signal`, `/tools/validate_schema`, and `/tools/check_dedup` implemented for real (not stubs), plus two endpoints deliberately stubbed pending their own blockers (Jira service-auth, HIL keyword lookup). What's still missing is the Claude tool-runner orchestration layer that would call these endpoints autonomously per `Docs/architecture.md`'s 8 stages — that layer is manually orchestrated across conversation so far, not running code. `Docs/tools.md`'s "Needed, not yet built" table, now topped by the tool-runner layer, is the concrete next-build list.
 
 ## Critical facts to not re-derive
 
