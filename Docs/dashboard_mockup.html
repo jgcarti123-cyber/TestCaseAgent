@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connected Cars Test Case Agent — Dashboard Concept</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F4F5F7; --surface:#FFFFFF; --surface-alt:#FAFBFC;
+    --border:#E3E6EA; --border-strong:#D2D6DC;
+    --text:#1A1D23; --text-secondary:#5B6270; --text-muted:#8A909B;
+    --accent:#3454D1; --accent-light:#EAEEFC; --accent-strong:#2540A6;
+    --success:#16794D; --success-light:#E6F6EE; --success-border:#BFE5D2;
+    --warning:#AD6F09; --warning-light:#FDF1DD; --warning-border:#F0D9A8;
+    --danger:#C22C2C; --danger-light:#FBEAEA; --danger-border:#F2C4C4;
+    --radius:10px; --radius-lg:14px;
+    --shadow:0 1px 2px rgba(20,22,28,.05), 0 4px 14px rgba(20,22,28,.04);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:14px;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;text-decoration:none;}
+  svg.icon{width:17px;height:17px;flex-shrink:0;}
+  .app{display:flex;min-height:100vh;}
+
+  /* sidebar */
+  .sidebar{width:236px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);
+    display:flex;flex-direction:column;padding:20px 14px;position:sticky;top:0;height:100vh;}
+  .brand{display:flex;align-items:center;gap:10px;padding:6px 10px 22px;}
+  .brand-mark{width:32px;height:32px;border-radius:9px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;}
+  .brand-name{font-weight:600;font-size:14px;line-height:1.2;}
+  .brand-sub{font-size:11px;color:var(--text-muted);}
+  nav{display:flex;flex-direction:column;gap:2px;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius);color:var(--text-secondary);font-size:13.5px;font-weight:500;cursor:pointer;}
+  .nav-item:hover{background:var(--surface-alt);}
+  .nav-item.active{background:var(--accent-light);color:var(--accent-strong);}
+  .nav-section-label{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin:18px 12px 6px;}
+  .sidebar-footer{margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px 10px;border-top:1px solid var(--border);}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--accent-light);color:var(--accent-strong);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12.5px;}
+  .sidebar-footer .who{line-height:1.25;}
+  .sidebar-footer .name{font-size:12.5px;font-weight:600;}
+  .sidebar-footer .role{font-size:11px;color:var(--text-muted);}
+
+  /* main */
+  main{flex:1;min-width:0;}
+  .topbar{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.92);backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--border);padding:16px 32px;display:flex;justify-content:space-between;align-items:center;gap:16px;}
+  .topbar h1{font-size:16px;font-weight:600;margin:0;}
+  .crumbs{font-size:12px;color:var(--text-muted);margin-top:2px;}
+  .topbar-actions{display:flex;align-items:center;gap:10px;}
+  .search{display:flex;align-items:center;gap:8px;background:var(--surface-alt);border:1px solid var(--border);border-radius:999px;padding:7px 14px;color:var(--text-muted);font-size:13px;width:220px;}
+  .btn{border:1px solid var(--border-strong);background:var(--surface);color:var(--text);padding:9px 15px;border-radius:8px;font-size:13.5px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:7px;}
+  .btn:hover{background:var(--surface-alt);}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .btn-primary:hover{background:var(--accent-strong);}
+  .btn-sm{padding:6px 11px;font-size:12.5px;}
+  .btn-danger-outline{border-color:var(--danger-border);color:var(--danger);background:var(--danger-light);}
+  .btn-success{background:var(--success);border-color:var(--success);color:#fff;}
+
+  .content{max-width:1220px;margin:0 auto;padding:26px 32px 90px;}
+
+  .banner{display:flex;gap:10px;align-items:flex-start;background:var(--warning-light);border:1px solid var(--warning-border);
+    color:#7A5106;border-radius:var(--radius);padding:12px 16px;font-size:12.5px;margin-bottom:22px;line-height:1.55;}
+  .banner b{color:#7A5106;}
+
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px;}
+  .metric-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;box-shadow:var(--shadow);}
+  .metric-top{display:flex;justify-content:space-between;align-items:flex-start;}
+  .metric-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;}
+  .metric-label{font-size:12px;color:var(--text-secondary);margin:12px 0 2px;}
+  .metric-value{font-size:25px;font-weight:700;line-height:1.1;}
+  .metric-sub{font-size:11.5px;color:var(--text-muted);margin-top:3px;}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px 24px;box-shadow:var(--shadow);margin-bottom:22px;}
+  .card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+  .card-title{font-size:15px;font-weight:600;}
+  .card-sub{font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
+
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+  .field label{display:block;font-size:12.5px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;}
+  select,input[type=text],input[type=number]{width:100%;height:38px;border:1px solid var(--border-strong);border-radius:8px;padding:0 12px;font-size:13.5px;background:var(--surface-alt);color:var(--text);font-family:inherit;}
+  select:focus,input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light);}
+  .chip-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .chip{padding:7px 14px;border:1px solid var(--border-strong);border-radius:999px;font-size:12.5px;cursor:pointer;user-select:none;color:var(--text-secondary);background:var(--surface-alt);}
+  .chip.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .dropzone{border:1.5px dashed var(--border-strong);border-radius:var(--radius);padding:20px;text-align:center;color:var(--text-secondary);background:var(--surface-alt);margin-bottom:16px;font-size:13px;}
+  .dropzone svg{margin-bottom:6px;color:var(--text-muted);}
+  .dropzone .hint{font-size:11.5px;color:var(--text-muted);margin-top:3px;}
+  .form-actions{display:flex;justify-content:flex-end;gap:10px;align-items:center;}
+  .helper{font-size:11.5px;color:var(--text-muted);margin-right:auto;}
+
+  .stepper{display:flex;position:relative;margin:6px 0 4px;}
+  .stepper::before{content:"";position:absolute;top:15px;left:5%;right:5%;height:2px;background:var(--border);z-index:0;}
+  .step{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;position:relative;z-index:1;text-align:center;}
+  .step-circle{width:30px;height:30px;border-radius:50%;background:var(--surface);border:2px solid var(--border-strong);display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:12px;font-weight:600;}
+  .step.done .step-circle{background:var(--success);border-color:var(--success);color:#fff;}
+  .step.active .step-circle{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 4px var(--accent-light);}
+  .step.attn .step-circle{background:var(--warning-light);border-color:var(--warning);color:var(--warning);}
+  .step-label{font-size:11px;color:var(--text-muted);max-width:78px;line-height:1.3;}
+  .step.done .step-label,.step.active .step-label,.step.attn .step-label{color:var(--text);font-weight:500;}
+  .run-meta{font-size:12px;color:var(--text-muted);margin-top:14px;}
+
+  .filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .filter-chip{padding:6px 13px;border-radius:999px;border:1px solid var(--border);font-size:12.5px;color:var(--text-secondary);cursor:pointer;background:var(--surface-alt);}
+  .filter-chip.active{background:var(--text);border-color:var(--text);color:#fff;}
+
+  table{width:100%;border-collapse:collapse;}
+  thead th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);padding:8px 12px;border-bottom:1px solid var(--border);font-weight:600;}
+  tbody td{padding:12px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;}
+  tbody tr{cursor:pointer;}
+  tbody tr:hover td{background:var(--surface-alt);}
+  .id-cell{font-weight:600;color:var(--text);}
+  .summary-cell{max-width:340px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:600;border:1px solid transparent;}
+  .badge-cat{background:var(--surface-alt);border-color:var(--border);color:var(--text-secondary);font-weight:500;}
+  .badge-released{background:var(--success-light);border-color:var(--success-border);color:var(--success);}
+  .badge-review{background:var(--warning-light);border-color:var(--warning-border);color:var(--warning);}
+  .badge-rejected{background:var(--danger-light);border-color:var(--danger-border);color:var(--danger);}
+  .conf-direct{color:var(--success);font-size:12px;font-weight:500;}
+  .conf-inferred{color:var(--warning);font-size:12px;font-weight:500;}
+  .sig-ok{display:inline-flex;align-items:center;gap:5px;color:var(--success);font-size:12.5px;font-weight:500;}
+
+  /* drawer */
+  .overlay{position:fixed;inset:0;background:rgba(20,22,28,.4);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40;}
+  .overlay.open{opacity:1;pointer-events:auto;}
+  .drawer{position:fixed;top:0;right:0;height:100vh;width:440px;max-width:92vw;background:var(--surface);
+    border-left:1px solid var(--border);box-shadow:-10px 0 30px rgba(20,22,28,.12);transform:translateX(100%);
+    transition:transform .25s ease;z-index:50;display:flex;flex-direction:column;}
+  .drawer.open{transform:translateX(0);}
+  .drawer-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .drawer-head .badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+  .drawer-close{cursor:pointer;color:var(--text-muted);flex-shrink:0;padding:4px;}
+  .drawer-body{padding:18px 20px;overflow-y:auto;flex:1;}
+  .drawer-section{margin-bottom:18px;}
+  .drawer-section h4{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);margin:0 0 8px;font-weight:600;}
+  .drawer-summary{font-size:13.5px;line-height:1.55;color:var(--text);}
+  .req-chip{display:inline-block;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:11px;margin:0 5px 5px 0;color:var(--text-secondary);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+  .gherkin-block{background:var(--surface-alt);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:12px;line-height:1.6;max-height:220px;overflow-y:auto;white-space:pre-wrap;color:var(--text-secondary);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+  .sig-table{width:100%;font-size:11.5px;border-collapse:collapse;}
+  .sig-table th{text-align:left;color:var(--text-muted);font-weight:600;padding:5px 6px;border-bottom:1px solid var(--border);font-size:10.5px;text-transform:uppercase;}
+  .sig-table td{padding:5px 6px;border-bottom:1px solid var(--border);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--text-secondary);}
+  .citation{font-size:12px;color:var(--text-secondary);background:var(--accent-light);border-radius:8px;padding:10px 12px;line-height:1.5;}
+  .drawer-footer{padding:16px 20px;border-top:1px solid var(--border);}
+  textarea{width:100%;height:56px;border:1px solid var(--border-strong);border-radius:8px;padding:8px 10px;font-family:inherit;font-size:12.5px;resize:none;margin-bottom:10px;background:var(--surface-alt);}
+  textarea:focus{outline:none;border-color:var(--accent);}
+  .drawer-btn-row{display:flex;gap:8px;}
+  .drawer-btn-row .btn{flex:1;justify-content:center;}
+
+  /* chat bubble */
+  .chat-fab{position:fixed;bottom:24px;right:24px;width:52px;height:52px;border-radius:50%;background:var(--accent);
+    color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 18px rgba(52,84,209,.35);z-index:45;}
+  .chat-panel{position:fixed;bottom:88px;right:24px;width:300px;background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius-lg);box-shadow:0 10px 30px rgba(20,22,28,.15);display:none;flex-direction:column;z-index:45;overflow:hidden;}
+  .chat-panel.open{display:flex;}
+  .chat-panel-head{padding:12px 14px;border-bottom:1px solid var(--border);font-size:12.5px;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
+  .chat-panel-body{padding:14px;display:flex;flex-direction:column;gap:10px;max-height:220px;overflow-y:auto;}
+  .msg{font-size:12px;line-height:1.5;padding:8px 11px;border-radius:10px;max-width:88%;}
+  .msg.user{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:3px;}
+  .msg.bot{align-self:flex-start;background:var(--surface-alt);border:1px solid var(--border);color:var(--text-secondary);border-bottom-left-radius:3px;}
+  .chat-input-row{display:flex;gap:6px;padding:10px;border-top:1px solid var(--border);}
+  .chat-input-row input{flex:1;height:34px;border:1px solid var(--border-strong);border-radius:8px;padding:0 10px;font-size:12px;background:var(--surface-alt);}
+  .chat-send{width:34px;height:34px;border-radius:8px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;}
+
+  @media (max-width:900px){.form-grid,.metrics{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">TC</div>
+      <div>
+        <div class="brand-name">Test Case Agent</div>
+        <div class="brand-sub">Connected Cars QA</div>
+      </div>
+    </div>
+    <nav>
+      <div class="nav-item active" onclick="switchView(this,'overview')">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+        Overview
+      </div>
+      <div class="nav-item" onclick="switchView(this,'overview'); setTimeout(function(){document.getElementById('new-run').scrollIntoView({behavior:'smooth'});},60);">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        New run
+      </div>
+      <div class="nav-item" onclick="switchView(this,'overview'); setTimeout(function(){document.getElementById('review-queue').scrollIntoView({behavior:'smooth'});},60);">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="8" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1.4"/><circle cx="4" cy="12" r="1.4"/><circle cx="4" cy="18" r="1.4"/></svg>
+        Review queue
+      </div>
+      <div class="nav-section-label">Reference</div>
+      <div class="nav-item" onclick="switchView(this,'library')">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 21 7.5 12 13 3 7.5 12 2"/><polyline points="3 16.5 12 22 21 16.5"/></svg>
+        Feature library
+      </div>
+      <div class="nav-item" onclick="switchView(this,'traceability')">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>
+        Traceability
+      </div>
+      <div class="nav-item" onclick="switchView(this,'settings')">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8.2"/></svg>
+        Settings
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="avatar">JG</div>
+      <div class="who">
+        <div class="name">John George</div>
+        <div class="role">Validation lead</div>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <div>
+        <h1>Overview</h1>
+        <div class="crumbs">Connected Cars Test Case Agent</div>
+      </div>
+      <div class="topbar-actions">
+        <div class="search">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Search test cases…
+        </div>
+        <button class="btn btn-primary" onclick="document.getElementById('new-run').scrollIntoView({behavior:'smooth'})">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New generation run
+        </button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <div id="view-overview" class="view">
+
+      <div class="banner">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-top:1px;"><path d="M12 3 L21 20 H3 Z"/><line x1="12" y1="9" x2="12" y2="13.5"/><circle cx="12" cy="16.3" r="0.6" fill="currentColor" stroke="none"/></svg>
+        <div><b>Concept for review — not yet live.</b> This is a UI mockup on real pipeline data from the Intrusion Alert pilot. Before this can run for real: the tool-runner orchestration layer, a shared home for the signal/requirement data, and service-side Jira auth still need to be built.</div>
+      </div>
+
+      <div class="metrics">
+        <div class="metric-card">
+          <div class="metric-top">
+            <div class="metric-icon" style="background:var(--accent-light);color:var(--accent-strong);">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
+            </div>
+          </div>
+          <div class="metric-label">Test cases generated</div>
+          <div class="metric-value">3</div>
+          <div class="metric-sub">Intrusion Alert pilot, all-time</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-top">
+            <div class="metric-icon" style="background:var(--warning-light);color:var(--warning);">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
+            </div>
+          </div>
+          <div class="metric-label">Pending your review</div>
+          <div class="metric-value">1</div>
+          <div class="metric-sub">Edge Case — needs SME sign-off</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-top">
+            <div class="metric-icon" style="background:var(--success-light);color:var(--success);">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="8 12 11 15 16 9"/></svg>
+            </div>
+          </div>
+          <div class="metric-label">Released</div>
+          <div class="metric-value">2</div>
+          <div class="metric-sub">Happy Path + Negative Case, auto-cleared</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-top">
+            <div class="metric-icon" style="background:var(--accent-light);color:var(--accent-strong);">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 L5 6 V11 C5 16 8 19.5 12 21 C16 19.5 19 16 19 11 V6 Z"/><polyline points="9 12 11.5 14.5 15 9.5"/></svg>
+            </div>
+          </div>
+          <div class="metric-label">Signal verification blocks</div>
+          <div class="metric-value">0</div>
+          <div class="metric-sub">No unresolved SIGNAL NOT FOUND this run</div>
+        </div>
+      </div>
+
+      <div class="card" id="new-run">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Start a new run</div>
+            <div class="card-sub">Point it at a feature and its requirement doc — the pipeline does the rest.</div>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Feature</label>
+            <select>
+              <option>Intrusion Alert — NIO-F001 (active pilot)</option>
+              <option>Time Fencing Alert — NIO-F003 (queued)</option>
+              <option>+ Add a new feature…</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Batch size</label>
+            <input type="number" value="8" min="1" max="20">
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:16px;">
+          <label>Target environments</label>
+          <div class="chip-row">
+            <div class="chip active">LabCar</div>
+            <div class="chip active">Vehicle</div>
+            <div class="chip">Bench</div>
+            <div class="chip active">HIL</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Requirement document</label>
+          <div class="dropzone">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><path d="M6 18a4 4 0 1 1 .8-7.93A5 5 0 1 1 18 10h.5a3.5 3.5 0 0 1 0 7H16"/><line x1="12" y1="20" x2="12" y2="11"/><polyline points="9 14 12 11 15 14"/></svg>
+            <div>Drop a requirement PDF here, or click to upload</div>
+            <div class="hint">Saved to Requirement_Docs/ — DFMEA cross-reference happens automatically</div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <div class="helper">Generated in batches of 8–10 so the model can cross-check for duplicates</div>
+          <button class="btn">Save as draft</button>
+          <button class="btn btn-primary" onclick="runPipeline()">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+            Generate test cases
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Pipeline status</div>
+            <div class="card-sub" id="run-caption">Last run · NIO-F001 · batch of 3 · completed 4 minutes ago</div>
+          </div>
+        </div>
+        <div class="stepper" id="stepper">
+          <div class="step done"><div class="step-circle">✓</div><div class="step-label">Document ingestion</div></div>
+          <div class="step done"><div class="step-circle">✓</div><div class="step-label">Feature understanding</div></div>
+          <div class="step done"><div class="step-circle">✓</div><div class="step-label">Signal resolution</div></div>
+          <div class="step done"><div class="step-circle">✓</div><div class="step-label">Interaction mapper</div></div>
+          <div class="step done"><div class="step-circle">✓</div><div class="step-label">Generator</div></div>
+          <div class="step done"><div class="step-circle">✓</div><div class="step-label">Dedupe check</div></div>
+          <div class="step done"><div class="step-circle">✓</div><div class="step-label">Formatter</div></div>
+          <div class="step attn"><div class="step-circle">!</div><div class="step-label">Reviewer</div></div>
+        </div>
+        <div class="run-meta">1 of 3 cases flagged Edge Case — Cross-Module Interaction, routed to you for sign-off below.</div>
+      </div>
+
+      <div class="card" id="review-queue">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Review queue</div>
+            <div class="card-sub">Click a row to open the full test case, verified signals, and sign-off actions.</div>
+          </div>
+        </div>
+        <div class="filters">
+          <div class="filter-chip active" onclick="filterRows('all',this)">All (3)</div>
+          <div class="filter-chip" onclick="filterRows('review',this)">Needs review (1)</div>
+          <div class="filter-chip" onclick="filterRows('released',this)">Released (2)</div>
+          <div class="filter-chip" onclick="filterRows('rejected',this)">Rejected (0)</div>
+        </div>
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Summary</th><th>Category</th><th>Environment</th><th>Signals</th><th>Confidence</th><th>Status</th><th>Execution</th><th></th></tr>
+          </thead>
+          <tbody id="table-body">
+            <tr data-status="review" onclick="openDrawer('t89')">
+              <td class="id-cell">Test_89</td>
+              <td class="summary-cell">TCM relays Remote Lock without BCM clearing an active Intrusion Alert</td>
+              <td><span class="badge badge-cat">Edge Case</span></td>
+              <td>Vehicle</td>
+              <td><span class="sig-ok"><svg class="icon" style="width:13px;height:13px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>11/11</span></td>
+              <td><span class="conf-inferred">Inferred</span></td>
+              <td><span class="badge badge-review">Needs review</span></td>
+              <td id="exec-t89"><span style="color:var(--text-muted);font-size:12px;">Not run</span></td>
+              <td><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);"><polyline points="9 6 15 12 9 18"/></svg></td>
+            </tr>
+            <tr data-status="released" onclick="openDrawer('t90')">
+              <td class="id-cell">Test_90</td>
+              <td class="summary-cell">Intrusion Alert triggers and displays on the app when driver door opens while locked</td>
+              <td><span class="badge badge-cat">Happy Path</span></td>
+              <td>Vehicle</td>
+              <td><span class="sig-ok"><svg class="icon" style="width:13px;height:13px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>6/6</span></td>
+              <td><span class="conf-direct">Direct</span></td>
+              <td><span class="badge badge-released">Released</span></td>
+              <td id="exec-t90"><span class="badge badge-released">Passed</span></td>
+              <td><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);"><polyline points="9 6 15 12 9 18"/></svg></td>
+            </tr>
+            <tr data-status="released" onclick="openDrawer('t91')">
+              <td class="id-cell">Test_91</td>
+              <td class="summary-cell">Intrusion Alert does not falsely trigger on SASSUnLockAllDoorCommand during a valid remote unlock</td>
+              <td><span class="badge badge-cat">Negative Case</span></td>
+              <td>Vehicle</td>
+              <td><span class="sig-ok"><svg class="icon" style="width:13px;height:13px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>8/8</span></td>
+              <td><span class="conf-direct">Direct</span></td>
+              <td><span class="badge badge-released">Released</span></td>
+              <td id="exec-t91"><span class="badge badge-released">Passed</span></td>
+              <td><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);"><polyline points="9 6 15 12 9 18"/></svg></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      </div>
+
+      <div id="view-library" class="view" style="display:none;">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Feature library</div>
+              <div class="card-sub">23 features found in Existing_TestCases, plus Jira status where it's been confirmed live. Click a feature for coverage detail.</div>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <input type="text" id="lib-search" placeholder="Search features…" oninput="filterLibrary()" style="width:190px;">
+              <button class="btn btn-primary btn-sm" onclick="openAddFeatureModal()">
+                <svg class="icon" style="width:15px;height:15px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add new feature
+              </button>
+            </div>
+          </div>
+          <div style="font-size:11.5px; color:var(--text-muted); margin-bottom:10px;">Environments column reflects AI-generated cases only (clean, enforced enum) — historical rows use 6 inconsistent spellings and aren't counted here.</div>
+          <table>
+            <thead>
+              <tr><th>Feature</th><th>Existing cases</th><th>AI-generated</th><th>Environments</th><th>Jira status</th><th>Jira tests</th><th>Bugs</th><th></th></tr>
+            </thead>
+            <tbody id="library-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="view-traceability" class="view" style="display:none;">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Traceability</div>
+              <div class="card-sub">Requirement coverage, Jira linkage, and bug history — per feature.</div>
+            </div>
+            <select id="trace-select" onchange="selectTraceFeature(this.value)" style="width:250px;">
+              <option value="NIOF001">Intrusion Alert — NIO-F001</option>
+              <option value="NIOF003">Time Fencing Alert — NIO-F003</option>
+              <optgroup label="Feature-level data only — not yet expanded">
+                <option disabled>Check Door Status</option>
+                <option disabled>B-Call Hardbutton</option>
+                <option disabled>Remote Lock/Unlock</option>
+                <option disabled>+ 19 more…</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">Requirement coverage</div><div class="card-sub" id="trace-req-sub"></div></div></div>
+          <table>
+            <thead><tr><th>Requirement ID</th><th>Covered by generated test case</th><th>Confirmed in Jira</th></tr></thead>
+            <tbody id="trace-req-body"></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">Jira linkage</div></div></div>
+          <div id="trace-jira-body" style="font-size:13px;line-height:1.9;color:var(--text-secondary);"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">Bug history</div><div class="card-sub" id="trace-bug-sub"></div></div></div>
+          <div id="trace-bug-body"></div>
+        </div>
+      </div>
+
+      <div id="view-settings" class="view" style="display:none;">
+        <div class="card">
+          <div class="card-title">Settings</div>
+          <div class="card-sub" style="margin-top:6px;">Out of scope for this concept — service auth, default environments, and notification preferences would live here.</div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div>
+      <div style="font-weight:600;font-size:15px;" id="d-id">Test_89</div>
+      <div class="badges">
+        <span class="badge badge-cat" id="d-cat">Edge Case</span>
+        <span class="badge badge-review" id="d-status">Needs review</span>
+      </div>
+    </div>
+    <div class="drawer-close" onclick="closeDrawer()">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </div>
+  </div>
+  <div class="drawer-body">
+    <div class="drawer-section">
+      <h4>Summary</h4>
+      <div class="drawer-summary" id="d-summary">To verify TCM correctly relays a Remote Lock command from the connected app without the BCM prematurely clearing an active Intrusion Alert, when the driver door is still open in Sleep mode.</div>
+    </div>
+    <div class="drawer-section">
+      <h4>Requirement IDs</h4>
+      <div id="d-reqs">
+        <span class="req-chip">NIO-F0001_INT_REQ_004</span>
+        <span class="req-chip">NIO-F0001_INT_REQ_009</span>
+        <span class="req-chip">NIO-F0001_INT_REQ_011</span>
+        <span class="req-chip">NIO-F0001_INT_REQ_014</span>
+      </div>
+    </div>
+    <div class="drawer-section">
+      <h4>Gherkin</h4>
+      <div class="gherkin-block" id="d-gherkin">Preconditions:
+1. Vehicle locked, all doors closed, Keyfob outside
+2. BCM reaches Secured state, then vehicle enters Sleep
+
+Test Steps:
+1. Open driver door from inside knob, leave it open
+2. Confirm Intrusion Alert notification on the app
+3. Issue a Remote Lock command from the app while alarm is active
+4. Monitor Msg 495 (RemoteVehicleLockCmd) and Msg 738 (BCM status)
+
+Expected Result:
+1. TCM still accepts and relays the lock command — does not drop it
+2. BCM does NOT clear the alarm because of the lock command
+3. App shows both the lock acknowledgement AND the alert still active</div>
+    </div>
+    <div class="drawer-section">
+      <h4>CAN signals referenced</h4>
+      <table class="sig-table" id="d-signals">
+        <thead><tr><th>Signal</th><th>Msg ID</th><th>Bit</th></tr></thead>
+        <tbody>
+          <tr><td>IntrusionInfoState</td><td>738</td><td>6/1</td></tr>
+          <tr><td>VehicleSecured</td><td>738</td><td>0/1</td></tr>
+          <tr><td>RemoteVehicleLockCmd</td><td>495</td><td>0/1</td></tr>
+          <tr><td>DoorStateDrvr</td><td>946</td><td>7/1</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="drawer-section">
+      <h4>Citation</h4>
+      <div class="citation" id="d-citation">NF-FFW Intrusion Alert spec, REQ_004 / REQ_009 / REQ_011 / REQ_014 — cross-referenced with Remote Lock/Unlock feature docs via the Interaction Mapper. Confidence: inferred cross-module interaction, needs SME confirmation.</div>
+    </div>
+    <div class="drawer-section">
+      <h4>Rig execution</h4>
+      <div id="d-exec-badge" style="margin-bottom:10px;"></div>
+      <div class="drawer-btn-row">
+        <button class="btn btn-sm" onclick="logExecution('pending')">Not run</button>
+        <button class="btn btn-danger-outline btn-sm" onclick="logExecution('fail')">Log fail</button>
+        <button class="btn btn-success btn-sm" onclick="logExecution('pass')">Log pass</button>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">Informational for now — Xray's per-build pass/fail feed is built (xray_execution_status_sync.py) but not wired in yet, pending Xray admin access.</div>
+    </div>
+  </div>
+  <div class="drawer-footer">
+    <textarea placeholder="Add a review comment (optional)…"></textarea>
+    <div class="drawer-btn-row">
+      <button class="btn btn-danger-outline btn-sm">Reject</button>
+      <button class="btn btn-sm">Request changes</button>
+      <button class="btn btn-success btn-sm">Approve &amp; release</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="f-overlay" onclick="closeFeatureDrawer()"></div>
+<div class="drawer" id="f-drawer">
+  <div class="drawer-head">
+    <div>
+      <div style="font-weight:600;font-size:15px;" id="f-name">Intrusion Alert</div>
+      <div class="badges" id="f-badges"></div>
+    </div>
+    <div class="drawer-close" onclick="closeFeatureDrawer()">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </div>
+  </div>
+  <div class="drawer-body">
+    <div class="drawer-section">
+      <h4>Coverage</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="background:var(--surface-alt);border-radius:var(--radius);padding:12px;">
+          <div class="metric-label">Existing cases</div>
+          <div style="font-size:20px;font-weight:700;" id="f-existing">—</div>
+        </div>
+        <div style="background:var(--surface-alt);border-radius:var(--radius);padding:12px;">
+          <div class="metric-label">AI-generated</div>
+          <div style="font-size:20px;font-weight:700;" id="f-ai">—</div>
+        </div>
+        <div style="background:var(--surface-alt);border-radius:var(--radius);padding:12px;">
+          <div class="metric-label">Jira Test issues</div>
+          <div style="font-size:20px;font-weight:700;" id="f-jiratests">—</div>
+        </div>
+        <div style="background:var(--surface-alt);border-radius:var(--radius);padding:12px;">
+          <div class="metric-label">Bugs linked</div>
+          <div style="font-size:20px;font-weight:700;" id="f-bugs">—</div>
+        </div>
+      </div>
+    </div>
+    <div class="drawer-section">
+      <h4>Environments (AI-generated)</h4>
+      <div id="f-envs" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
+    </div>
+    <div class="drawer-section">
+      <h4>Note</h4>
+      <div class="drawer-summary" id="f-note">—</div>
+    </div>
+  </div>
+  <div class="drawer-footer">
+    <div class="drawer-btn-row">
+      <button class="btn btn-sm" id="f-trace-btn">View traceability</button>
+      <button class="btn btn-primary btn-sm" id="f-run-btn">Start a run</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="add-overlay" onclick="closeAddFeatureModal()"></div>
+<div id="add-modal" style="display:none; position:fixed; inset:0; z-index:55; align-items:center; justify-content:center; padding:24px;">
+  <div class="card" style="width:520px; max-width:100%; max-height:88vh; overflow-y:auto; margin:0;" onclick="event.stopPropagation()">
+    <div class="card-head">
+      <div>
+        <div class="card-title">Add a new feature</div>
+        <div class="card-sub">Register it and kick off its first generation run in one go.</div>
+      </div>
+      <div class="drawer-close" onclick="closeAddFeatureModal()">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:14px;">
+      <label>Feature name</label>
+      <input type="text" id="af-name" placeholder="e.g. Geofence Alert">
+    </div>
+    <div class="form-grid">
+      <div class="field"><label>Parent ID</label><input type="text" id="af-id" placeholder="NIO-F0025"></div>
+      <div class="field"><label>Batch size</label><input type="number" id="af-batch" value="8" min="1" max="20"></div>
+    </div>
+    <div class="field" style="margin-bottom:16px;">
+      <label>Target environments</label>
+      <div class="chip-row" id="af-envs">
+        <div class="chip" data-env="LabCar" onclick="this.classList.toggle('active')">LabCar</div>
+        <div class="chip active" data-env="Vehicle" onclick="this.classList.toggle('active')">Vehicle</div>
+        <div class="chip" data-env="Bench" onclick="this.classList.toggle('active')">Bench</div>
+        <div class="chip" data-env="HIL" onclick="this.classList.toggle('active')">HIL</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Requirement document</label>
+      <div class="dropzone">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><path d="M6 18a4 4 0 1 1 .8-7.93A5 5 0 1 1 18 10h.5a3.5 3.5 0 0 1 0 7H16"/><line x1="12" y1="20" x2="12" y2="11"/><polyline points="9 14 12 11 15 14"/></svg>
+        <div>Drop a requirement PDF here, or click to upload</div>
+        <div class="hint">Saved to Requirement_Docs/ — the feature won't appear in Traceability until Jira is checked separately</div>
+      </div>
+    </div>
+    <div class="form-actions">
+      <div class="helper" id="af-error" style="color:var(--danger);"></div>
+      <button class="btn" onclick="closeAddFeatureModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitAddFeature()">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+        Add feature &amp; generate
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="chat-fab" onclick="toggleChat()">
+  <svg class="icon" style="width:22px;height:22px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12c0 4.4-4 8-9 8-1.2 0-2.3-.2-3.4-.6L3 21l1.6-4.8C3.6 14.9 3 13.5 3 12c0-4.4 4-8 9-8s9 3.6 9 8Z"/></svg>
+</div>
+<div class="chat-panel" id="chat-panel">
+  <div class="chat-panel-head">
+    Ask about this run
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer;color:var(--text-muted);" onclick="toggleChat()"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+  </div>
+  <div class="chat-panel-body">
+    <div class="msg user">Why was Test_89 flagged for review instead of released?</div>
+    <div class="msg bot">It's tagged Edge Case — Cross-Module Interaction and marked "inferred," not directly stated in one requirement. Both always route to a human by policy, regardless of automated checks passing.</div>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" placeholder="Ask a question…">
+    <button class="chat-send">
+      <svg class="icon" style="width:15px;height:15px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  let currentCaseId = null;
+  function execBadge(status){
+    if(status === 'pass') return '<span class="badge badge-released">Passed</span>';
+    if(status === 'fail') return '<span class="badge badge-rejected">Failed</span>';
+    return '<span style="color:var(--text-muted);font-size:12px;">Not run</span>';
+  }
+  function logExecution(status){
+    if(!currentCaseId) return;
+    cases[currentCaseId].execution = status;
+    document.getElementById('d-exec-badge').innerHTML = execBadge(status);
+    const cell = document.getElementById('exec-' + currentCaseId);
+    if(cell) cell.innerHTML = execBadge(status);
+  }
+  const cases = {
+    t89: {
+      cat:"Edge Case", status:"review", statusLabel:"Needs review", execution:"pending",
+      summary:"To verify TCM correctly relays a Remote Lock command from the connected app without the BCM prematurely clearing an active Intrusion Alert, when the driver door is still open in Sleep mode.",
+      reqs:["NIO-F0001_INT_REQ_004","NIO-F0001_INT_REQ_009","NIO-F0001_INT_REQ_011","NIO-F0001_INT_REQ_014"],
+      gherkin:`Preconditions:
+1. Vehicle locked, all doors closed, Keyfob outside
+2. BCM reaches Secured state, then vehicle enters Sleep
+
+Test Steps:
+1. Open driver door from inside knob, leave it open
+2. Confirm Intrusion Alert notification on the app
+3. Issue a Remote Lock command from the app while alarm is active
+4. Monitor Msg 495 (RemoteVehicleLockCmd) and Msg 738 (BCM status)
+
+Expected Result:
+1. TCM still accepts and relays the lock command — does not drop it
+2. BCM does NOT clear the alarm because of the lock command
+3. App shows both the lock acknowledgement AND the alert still active`,
+      signals:[["IntrusionInfoState","738","6/1"],["VehicleSecured","738","0/1"],["RemoteVehicleLockCmd","495","0/1"],["DoorStateDrvr","946","7/1"]],
+      citation:"NF-FFW Intrusion Alert spec, REQ_004 / REQ_009 / REQ_011 / REQ_014 — cross-referenced with Remote Lock/Unlock feature docs via the Interaction Mapper. Confidence: inferred cross-module interaction, needs SME confirmation."
+    },
+    t90: {
+      cat:"Happy Path", status:"released", statusLabel:"Released", execution:"pass",
+      summary:"To verify Intrusion Alert is correctly triggered and displayed on the Mobile App when the driver door is opened while the vehicle is locked and armed in Sleep mode.",
+      reqs:["NIO-F0001_INT_REQ_001","NIO-F0001_INT_REQ_002","NIO-F0001_INT_REQ_004","NIO-F0001_INT_REQ_014"],
+      gherkin:`Preconditions:
+1. Vehicle locked, all doors closed, Keyfob outside
+
+Test Steps:
+1. Wait 20s for BCM Secured state, then 8-9 min for Sleep
+2. Open driver door from inside knob while locked
+3. Wait 10-15s
+
+Expected Result:
+1. BCM wakes TCM via hardwired wake-up, intrusion activates
+2. IntrusionInfoState = 1, VehicleSecured = 0, HazardLampState = 1
+3. Alert shown on app within 1 second, enabled by default`,
+      signals:[["IntrusionInfoState","738","6/1"],["VehicleSecured","738","0/1"],["HazardLampState","738","3/1"],["DoorStateDrvr","946","7/1"]],
+      citation:"NF-FFW Intrusion Alert spec, REQ_001 / REQ_002 / REQ_004 / REQ_014. Confidence: directly derived from documented requirement."
+    },
+    t91: {
+      cat:"Negative Case", status:"released", statusLabel:"Released", execution:"pass",
+      summary:"To verify Intrusion Alert is NOT falsely triggered when the driver door is opened after an authorized RF Keyfob unlock while the vehicle is Secured/Sleep.",
+      reqs:["NIO-F0001_INT_REQ_001","NIO-F0001_INT_REQ_004","NIO-F0001_INT_REQ_005","NIO-F0001_INT_REQ_014"],
+      gherkin:`Preconditions:
+1. Vehicle locked and secured via RF Keyfob, no active intrusion
+2. Vehicle in Sleep state
+
+Test Steps:
+1. Authorized RF Keyfob unlock is issued
+2. Open the driver door within the authorized-unlock window
+3. Monitor SASSUnLockAllDoorCommand (Msg 538, bit 7) and BCM status
+
+Expected Result:
+1. Doors unlock normally, no Intrusion Alert is raised
+2. IntrusionInfoState remains 0 throughout the sequence`,
+      signals:[["SASSUnLockAllDoorCommand","538","7/1"],["IntrusionInfoState","738","6/1"],["VehicleSecured","738","0/1"]],
+      citation:"NF-FFW Intrusion Alert spec, REQ_001 / REQ_004 / REQ_005 / REQ_014. Signal verified via raw DBC fallback (not in the derived index, confirmed present in SASS_Event2_RC). Confidence: directly derived from documented requirement."
+    }
+  };
+
+  function openDrawer(id){
+    currentCaseId = id;
+    const c = cases[id];
+    document.getElementById('d-id').textContent = id === 't89' ? 'Test_89' : id === 't90' ? 'Test_90' : 'Test_91';
+    document.getElementById('d-cat').textContent = c.cat;
+    const statusEl = document.getElementById('d-status');
+    statusEl.textContent = c.statusLabel;
+    statusEl.className = 'badge ' + (c.status === 'review' ? 'badge-review' : c.status === 'rejected' ? 'badge-rejected' : 'badge-released');
+    document.getElementById('d-summary').textContent = c.summary;
+    document.getElementById('d-reqs').innerHTML = c.reqs.map(r => `<span class="req-chip">${r}</span>`).join('');
+    document.getElementById('d-gherkin').textContent = c.gherkin;
+    document.getElementById('d-signals').querySelector('tbody').innerHTML = c.signals.map(s => `<tr><td>${s[0]}</td><td>${s[1]}</td><td>${s[2]}</td></tr>`).join('');
+    document.getElementById('d-citation').textContent = c.citation;
+    document.getElementById('d-exec-badge').innerHTML = execBadge(c.execution);
+    document.getElementById('drawer').classList.add('open');
+    document.getElementById('overlay').classList.add('open');
+  }
+  function closeDrawer(){
+    document.getElementById('drawer').classList.remove('open');
+    document.getElementById('overlay').classList.remove('open');
+  }
+  function filterRows(status, el){
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('#table-body tr').forEach(row => {
+      row.style.display = (status === 'all' || row.dataset.status === status) ? '' : 'none';
+    });
+  }
+  function toggleChat(){
+    document.getElementById('chat-panel').classList.toggle('open');
+  }
+  function switchView(el, view){
+    document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+    el.classList.add('active');
+    document.querySelectorAll('.view').forEach(function(v){ v.style.display = 'none'; });
+    document.getElementById('view-' + view).style.display = '';
+    const titles = {
+      overview:['Overview','Connected Cars Test Case Agent'],
+      library:['Feature library','All features tracked by the pipeline'],
+      traceability:['Traceability','Requirement coverage, Jira linkage, bug history'],
+      settings:['Settings','Concept only']
+    };
+    document.querySelector('.topbar h1').textContent = titles[view][0];
+    document.querySelector('.crumbs').textContent = titles[view][1];
+  }
+
+  const featureData = [
+    {key:'NIOF001', name:'Intrusion Alert', parentId:'NIO-F001', existing:87, ai:3, envs:{LabCar:0,Vehicle:3,Bench:0,HIL:0}, jiraStatus:'Released to Internal Validation', jiraTests:40, bugs:27, note:'Pilot feature — the only one the pipeline has actually generated cases for so far.'},
+    {key:'NIOF003', name:'Time Fencing Alert', parentId:'NIO-F003', existing:null, ai:0, envs:null, jiraStatus:'Under Development', jiraTests:29, bugs:3, note:'No local Existing_TestCases file — only known through Jira. Next in line for a pipeline run.'},
+    {key:'CheckDoorStatus', name:'Check Door Status', parentId:null, existing:350, ai:0, envs:null, jiraStatus:null, jiraTests:24, bugs:8, note:'Highest bug-to-test ratio in the portfolio besides B-Call Hardbutton — worth prioritizing.'},
+    {key:'BCallHardbutton', name:'B-Call Hardbutton', parentId:null, existing:106, ai:0, envs:null, jiraStatus:null, jiraTests:16, bugs:7, note:''},
+    {key:'RemoteLockUnlock', name:'Remote Lock/Unlock', parentId:null, existing:132, ai:0, envs:null, jiraStatus:null, jiraTests:25, bugs:0, note:'Zero linked bugs despite one of the highest test counts — plausibly clean, unconfirmed.'},
+    {key:'RemoteHorn', name:'Remote Horn', parentId:null, existing:37, ai:0, envs:null, jiraStatus:null, jiraTests:21, bugs:0, note:''},
+    {key:'RemoteLightsOnOff', name:'Remote Lights On/Off', parentId:null, existing:163, ai:0, envs:null, jiraStatus:null, jiraTests:39, bugs:0, note:''},
+    {key:'RemoteAC', name:'Remote AC', parentId:null, existing:272, ai:0, envs:null, jiraStatus:null, jiraTests:15, bugs:0, note:''},
+    {key:'RemoteImmobilization', name:'Remote Immobilization', parentId:null, existing:64, ai:0, envs:null, jiraStatus:null, jiraTests:15, bugs:0, note:''},
+    {key:'DTEIce', name:'DTE Check (legacy)', parentId:null, existing:143, ai:0, envs:null, jiraStatus:null, jiraTests:11, bugs:1, note:''},
+    {key:'CheckAcStatus', name:'Check AC Status', parentId:null, existing:221, ai:0, envs:null, jiraStatus:null, jiraTests:13, bugs:4, note:''},
+    {key:'CheckODO', name:'Check ODO', parentId:null, existing:207, ai:0, envs:null, jiraStatus:null, jiraTests:9, bugs:2, note:''},
+    {key:'CheckSeatBelt', name:'Check Seat Belt Status', parentId:null, existing:94, ai:0, envs:null, jiraStatus:null, jiraTests:11, bugs:3, note:''},
+    {key:'TyrePressure', name:'Tyre Pressure Alert', parentId:null, existing:142, ai:0, envs:null, jiraStatus:null, jiraTests:21, bugs:7, note:''},
+    {key:'LowFuel', name:'Low Fuel Alert', parentId:null, existing:55, ai:0, envs:null, jiraStatus:null, jiraTests:7, bugs:1, note:''},
+    {key:'ReFuel', name:'ReFuel Alert', parentId:null, existing:70, ai:0, envs:null, jiraStatus:null, jiraTests:20, bugs:1, note:''},
+    {key:'InsuranceExpiry', name:'Insurance Expiry', parentId:null, existing:52, ai:0, envs:null, jiraStatus:null, jiraTests:7, bugs:0, note:''},
+    {key:'PUCExpiry', name:'PUC Expiry', parentId:null, existing:23, ai:0, envs:null, jiraStatus:null, jiraTests:8, bugs:0, note:''},
+    {key:'Challan', name:'Challan (Financial Penalty)', parentId:null, existing:37, ai:0, envs:null, jiraStatus:null, jiraTests:6, bugs:0, note:''},
+    {key:'Smartwatch', name:'Vehicle Alerts On Smartwatch', parentId:null, existing:50, ai:0, envs:null, jiraStatus:null, jiraTests:4, bugs:1, note:''},
+    {key:'AutoEcall', name:'Auto Ecall', parentId:null, existing:58, ai:0, envs:null, jiraStatus:null, jiraTests:null, bugs:null, note:'Jira has two similarly-named features under one SOS/Emergency parent — which one this maps to needs team confirmation, not guessed.'},
+    {key:'ECallManual', name:'E-Call Manual', parentId:null, existing:131, ai:0, envs:null, jiraStatus:null, jiraTests:null, bugs:null, note:'Same ambiguity as Auto Ecall — needs team confirmation.'},
+    {key:'RESS', name:'RESS', parentId:null, existing:211, ai:0, envs:null, jiraStatus:null, jiraTests:null, bugs:null, note:'No matching Jira feature found by keyword search — not guessed.'},
+    {key:'BCallSoftSwitch', name:'B-Call SoftSwitch', parentId:null, existing:106, ai:0, envs:null, jiraStatus:null, jiraTests:null, bugs:null, note:'No matching Jira feature found by keyword search — not guessed.'}
+  ];
+
+  function envPills(envs){
+    if(!envs) return '<span style="color:var(--text-muted);">—</span>';
+    const active = Object.keys(envs).filter(function(k){ return envs[k] > 0; });
+    if(!active.length) return '<span style="color:var(--text-muted);">—</span>';
+    return active.map(function(k){ return '<span class="badge badge-cat" style="margin-right:4px;">' + k + ' ' + envs[k] + '</span>'; }).join('');
+  }
+  function renderLibrary(){
+    const tbody = document.getElementById('library-body');
+    tbody.innerHTML = featureData.map(function(f){
+      return '<tr onclick="openFeatureDrawer(\'' + f.key + '\')" data-name="' + f.name.toLowerCase() + '">' +
+        '<td class="id-cell">' + f.name + (f.parentId ? ' <span style="color:var(--text-muted);font-weight:400;">· ' + f.parentId + '</span>' : '') + '</td>' +
+        '<td>' + (f.existing != null ? f.existing : '—') + '</td>' +
+        '<td>' + (f.ai || '—') + '</td>' +
+        '<td>' + envPills(f.envs) + '</td>' +
+        '<td>' + (f.jiraStatus ? '<span class="badge badge-cat">' + f.jiraStatus + '</span>' : '<span style="color:var(--text-muted);">Not mapped</span>') + '</td>' +
+        '<td>' + (f.jiraTests != null ? f.jiraTests : '—') + '</td>' +
+        '<td>' + (f.bugs != null ? f.bugs : '—') + '</td>' +
+        '<td><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);"><polyline points="9 6 15 12 9 18"/></svg></td>' +
+      '</tr>';
+    }).join('');
+  }
+  function filterLibrary(){
+    const q = document.getElementById('lib-search').value.toLowerCase();
+    document.querySelectorAll('#library-body tr').forEach(function(r){
+      r.style.display = r.dataset.name.indexOf(q) !== -1 ? '' : 'none';
+    });
+  }
+  function openFeatureDrawer(key){
+    const f = featureData.find(function(x){ return x.key === key; });
+    document.getElementById('f-name').textContent = f.name;
+    document.getElementById('f-badges').innerHTML = f.jiraStatus ?
+      '<span class="badge badge-cat">' + f.jiraStatus + '</span>' :
+      '<span class="badge badge-cat">Not yet mapped in Jira</span>';
+    document.getElementById('f-existing').textContent = f.existing != null ? f.existing : '—';
+    document.getElementById('f-ai').textContent = f.ai || '0';
+    document.getElementById('f-jiratests').textContent = f.jiraTests != null ? f.jiraTests : '—';
+    document.getElementById('f-bugs').textContent = f.bugs != null ? f.bugs : '—';
+    const envWrap = document.getElementById('f-envs');
+    if(f.envs){
+      envWrap.innerHTML = Object.keys(f.envs).map(function(k){
+        const n = f.envs[k];
+        return '<div style="background:var(--surface-alt);border-radius:var(--radius);padding:8px 12px;min-width:70px;text-align:center;">' +
+          '<div style="font-size:10.5px;color:var(--text-muted);">' + k + '</div>' +
+          '<div style="font-size:16px;font-weight:700;' + (n > 0 ? '' : 'color:var(--text-muted);') + '">' + n + '</div></div>';
+      }).join('');
+    } else {
+      envWrap.innerHTML = '<span style="font-size:12.5px;color:var(--text-muted);">No AI-generated cases yet — nothing to break down by environment.</span>';
+    }
+    document.getElementById('f-note').textContent = f.note || 'No additional notes.';
+    document.getElementById('f-run-btn').onclick = function(){
+      closeFeatureDrawer();
+      switchView(document.querySelectorAll('.nav-item')[0], 'overview');
+      setTimeout(function(){ document.getElementById('new-run').scrollIntoView({behavior:'smooth'}); }, 80);
+    };
+    const canTrace = (key === 'NIOF001' || key === 'NIOF003');
+    document.getElementById('f-trace-btn').style.opacity = canTrace ? '1' : '.5';
+    document.getElementById('f-trace-btn').onclick = function(){
+      if(!canTrace) return;
+      closeFeatureDrawer();
+      switchView(document.querySelectorAll('.nav-item')[4], 'traceability');
+      document.getElementById('trace-select').value = key;
+      selectTraceFeature(key);
+    };
+    document.getElementById('f-drawer').classList.add('open');
+    document.getElementById('f-overlay').classList.add('open');
+  }
+  function closeFeatureDrawer(){
+    document.getElementById('f-drawer').classList.remove('open');
+    document.getElementById('f-overlay').classList.remove('open');
+  }
+
+  const traceData = {
+    NIOF001: {
+      reqSub: '7 requirement IDs referenced across the 3 generated test cases so far. Full requirement range (up to REQ_014) lives in Requirement_Docs/ and isn\'t fully indexed into this view yet.',
+      reqMatrix: [
+        {id:'NIO-F0001_INT_REQ_001', coveredBy:['Test_90','Test_91'], jira:true, jiraTests:40},
+        {id:'NIO-F0001_INT_REQ_002', coveredBy:['Test_90'], jira:true, jiraTests:40},
+        {id:'NIO-F0001_INT_REQ_004', coveredBy:['Test_89','Test_90','Test_91'], jira:false},
+        {id:'NIO-F0001_INT_REQ_005', coveredBy:['Test_91'], jira:false},
+        {id:'NIO-F0001_INT_REQ_009', coveredBy:['Test_89'], jira:false},
+        {id:'NIO-F0001_INT_REQ_011', coveredBy:['Test_89'], jira:false},
+        {id:'NIO-F0001_INT_REQ_014', coveredBy:['Test_89','Test_90','Test_91'], jira:false}
+      ],
+      jiraHtml: '<b>NIF-117</b> — Released to Internal Validation, child of NIF-45 (Vehicle Alert)<br>' +
+        'Test project <b>NIV</b>, 40 Test issues (NIV-1582–NIV-1621)<br>' +
+        '<span style="color:var(--text-muted);">All 40 cite only REQ_001/REQ_002 in their description field — coarser than the 14-requirement range in Requirement_Docs/.</span>',
+      bugSub: '27 closed Validation Bug issues, linked at feature level. Severity field only populated on 3 of 27 — treated as unknown, not as low severity.',
+      bugHtml: '<div class="req-chip" style="display:block;margin-bottom:8px;padding:10px 12px;">NIV-6819 — Alert timestamp shows UST while phone shows IST <span style="color:var(--text-muted);">(timezone bug)</span></div>' +
+        '<div class="req-chip" style="display:block;margin-bottom:8px;padding:10px 12px;">NIV-9610 — EV/PV cross-variant alert suppression</div>' +
+        '<div class="req-chip" style="display:block;padding:10px 12px;">NIV-6850 — Duplicate/continuous alert firing <span style="color:var(--text-muted);">(debounce failure)</span></div>'
+    },
+    NIOF003: {
+      reqSub: 'Jira only confirms REQ_001/REQ_002 for this feature so far — no test cases generated yet.',
+      reqMatrix: [
+        {id:'NIO-F0003_INT_REQ_001', coveredBy:[], jira:true, jiraTests:29},
+        {id:'NIO-F0003_INT_REQ_002', coveredBy:[], jira:true, jiraTests:29}
+      ],
+      jiraHtml: '<b>NIF-148</b> — Under Development, child of NIF-45 (Vehicle Alert)<br>' +
+        'Test project <b>NIV</b>, 29 Test issues (NIV-1512–NIV-1540)<br>' +
+        '<span style="color:var(--text-muted);">A Test Execution issue (NIV-14027) exists but has no linked Tests and no accessible pass/fail data.</span>',
+      bugSub: '3 dependent bugs, all closed.',
+      bugHtml: '<div class="req-chip" style="display:block;margin-bottom:8px;padding:10px 12px;">NIV-10429 / NIV-10619 — Time fence alert not received after vehicle cranked during fenced duration <span style="color:var(--text-muted);">(recurring, highest priority)</span></div>' +
+        '<div class="req-chip" style="display:block;padding:10px 12px;">NIV-13233 — Not able to set time fence alert [KPIT BENCH] <span style="color:var(--text-muted);">(linked to 25 of 29 Test issues)</span></div>'
+    }
+  };
+
+  function selectTraceFeature(key){
+    const t = traceData[key];
+    document.getElementById('trace-req-sub').textContent = t.reqSub;
+    document.getElementById('trace-req-body').innerHTML = t.reqMatrix.map(function(r){
+      return '<tr><td class="id-cell">' + r.id + '</td>' +
+        '<td>' + (r.coveredBy.length ? r.coveredBy.join(', ') : '<span style="color:var(--text-muted);">Not generated yet</span>') + '</td>' +
+        '<td>' + (r.jira ? '<span class="sig-ok"><svg class="icon" style="width:13px;height:13px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' + r.jiraTests + ' Jira tests</span>' : '<span style="color:var(--text-muted);">—</span>') + '</td></tr>';
+    }).join('');
+    document.getElementById('trace-jira-body').innerHTML = t.jiraHtml;
+    document.getElementById('trace-bug-sub').textContent = t.bugSub;
+    document.getElementById('trace-bug-body').innerHTML = t.bugHtml;
+  }
+
+  function openAddFeatureModal(){
+    document.getElementById('af-name').value = '';
+    document.getElementById('af-id').value = '';
+    document.getElementById('af-error').textContent = '';
+    document.getElementById('add-modal').style.display = 'flex';
+    document.getElementById('add-overlay').classList.add('open');
+  }
+  function closeAddFeatureModal(){
+    document.getElementById('add-modal').style.display = 'none';
+    document.getElementById('add-overlay').classList.remove('open');
+  }
+  function submitAddFeature(){
+    const name = document.getElementById('af-name').value.trim();
+    const id = document.getElementById('af-id').value.trim();
+    const batch = document.getElementById('af-batch').value || 8;
+    const err = document.getElementById('af-error');
+    if(!name){ err.textContent = 'Feature name is required.'; return; }
+    err.textContent = '';
+    const key = 'NEW_' + Date.now();
+    featureData.unshift({key:key, name:name, parentId:id || null, existing:0, ai:0, envs:null, jiraStatus:null, jiraTests:null, bugs:null, note:'Added just now via the wizard — awaiting its first pipeline run.'});
+    renderLibrary();
+    closeAddFeatureModal();
+    switchView(document.querySelectorAll('.nav-item')[0], 'overview');
+    document.getElementById('run-caption').textContent = 'Queued · ' + name + (id ? ' · ' + id : '') + ' · batch of ' + batch;
+    setTimeout(function(){
+      document.getElementById('new-run').scrollIntoView({behavior:'smooth'});
+      setTimeout(runPipeline, 400);
+    }, 80);
+  }
+
+  renderLibrary();
+  selectTraceFeature('NIOF001');
+
+  function runPipeline(){
+    const steps = document.querySelectorAll('#stepper .step');
+    steps.forEach(s => { s.classList.remove('done','active','attn'); s.querySelector('.step-circle').textContent = ''; });
+    document.getElementById('run-caption').textContent = 'Running now · NIO-F001 · batch of 8';
+    let i = 0;
+    const iv = setInterval(() => {
+      if(i > 0){ steps[i-1].classList.remove('active'); steps[i-1].classList.add('done'); steps[i-1].querySelector('.step-circle').textContent = '✓'; }
+      if(i < steps.length){
+        if(i === steps.length - 1){
+          steps[i].classList.add('attn');
+          steps[i].querySelector('.step-circle').textContent = '!';
+          document.getElementById('run-caption').textContent = 'Completed just now · NIO-F001 · batch of 8 · 1 flagged for review';
+          clearInterval(iv);
+        } else {
+          steps[i].classList.add('active');
+        }
+        i++;
+      }
+    }, 450);
+  }
+</script>
+</body>
+</html>
